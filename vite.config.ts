@@ -5,7 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, '.', '');
-    // On utilise /kanine/ seulement pour la prod GitHub
+    // Utilise le chemin relatif par défaut pour plus de souplesse, 
+    // ou /kanine/ seulement pour la production GitHub.
     const base = process.env.GITHUB_ACTIONS === 'true' ? '/kanine/' : '/';
     
     return {
@@ -19,13 +20,7 @@ export default defineConfig(({ command, mode }) => {
         tailwindcss()
       ],
       define: {
-        'process.env.API_KEY': JSON.stringify(env.GEMINI_API_KEY),
         'process.env.GEMINI_API_KEY': JSON.stringify(env.GEMINI_API_KEY)
-      },
-      resolve: {
-        alias: {
-          '@': path.resolve(__dirname, '.'),
-        }
       }
     };
 });

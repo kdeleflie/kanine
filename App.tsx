@@ -21,7 +21,9 @@ import { AlertModal } from './components/AlertModal';
 import { auth, signInWithPopup, signOut, googleProvider, User, onAuthStateChanged, firebaseConfig } from './firebase';
 import { LogIn, LogOut, Cloud, CloudOff, RefreshCw, ExternalLink } from 'lucide-react';
 
+console.log("App initialization started");
 const App: React.FC = () => {
+  console.log("App rendering");
   const [activeTab, setActiveTab] = useState('dashboard');
   const [selectedClientId, setSelectedClientId] = useState<string | null>(null);
   const [config, setConfig] = useState(db.getConfig());

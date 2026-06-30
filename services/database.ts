@@ -33,6 +33,19 @@ export interface ImportResult {
   logs: string[];
 }
 
+const sanitizeForFirestore = (obj: any): any => {
+  if (obj === null || typeof obj !== 'object') return obj;
+  if (Array.isArray(obj)) return obj.map(sanitizeForFirestore).filter(v => v !== undefined);
+  
+  const result: any = {};
+  for (const key in obj) {
+    if (obj[key] !== undefined) {
+      result[key] = sanitizeForFirestore(obj[key]);
+    }
+  }
+  return result;
+};
+
 export const db = {
   getUid: () => auth.currentUser?.uid,
 
@@ -103,12 +116,12 @@ export const db = {
     if (uid) {
       const path = `users/${uid}`;
       try {
-        await setDoc(doc(fdb, 'users', uid), { 
+        await setDoc(doc(fdb, 'users', uid), sanitizeForFirestore({ 
           uid, 
           email: auth.currentUser?.email,
           config,
           lastSync: new Date().toISOString()
-        }, { merge: true });
+        }), { merge: true });
       } catch (e) { 
         handleFirestoreError(e, OperationType.WRITE, path);
       }
@@ -155,11 +168,11 @@ export const db = {
         const path = `users/${uid}/clients/${client.id}`;
         try {
           // Flatten photo for cloud if needed, or store key
-          await setDoc(doc(fdb, `users/${uid}/clients`, client.id), {
+          await setDoc(doc(fdb, `users/${uid}/clients`, client.id), sanitizeForFirestore({
             ...clientToSave,
             uid,
             updatedAt: new Date().toISOString()
-          });
+          }));
         } catch (e) { 
           handleFirestoreError(e, OperationType.WRITE, path);
         }
@@ -265,11 +278,11 @@ export const db = {
       if (uid) {
         const path = `users/${uid}/appointments/${appt.id}`;
         try {
-          await setDoc(doc(fdb, `users/${uid}/appointments`, appt.id), {
+          await setDoc(doc(fdb, `users/${uid}/appointments`, appt.id), sanitizeForFirestore({
             ...apptToSave,
             uid,
             updatedAt: new Date().toISOString()
-          });
+          }));
         } catch (e) { 
           handleFirestoreError(e, OperationType.WRITE, path);
         }
@@ -329,11 +342,11 @@ export const db = {
     if (uid) {
       const path = `users/${uid}/invoices/${invoice.id}`;
       try {
-        await setDoc(doc(fdb, `users/${uid}/invoices`, invoice.id), {
+        await setDoc(doc(fdb, `users/${uid}/invoices`, invoice.id), sanitizeForFirestore({
           ...invoice,
           uid,
           updatedAt: new Date().toISOString()
-        });
+        }));
       } catch (e) { 
         handleFirestoreError(e, OperationType.WRITE, path);
       }
@@ -370,11 +383,11 @@ export const db = {
         
         if (uid) {
           try {
-            await setDoc(doc(fdb, `users/${uid}/appointments`, appts[apptIndex].id), {
+            await setDoc(doc(fdb, `users/${uid}/appointments`, appts[apptIndex].id), sanitizeForFirestore({
               ...appts[apptIndex],
               uid,
               updatedAt: new Date().toISOString()
-            });
+            }));
           } catch (e) {}
         }
       }
@@ -397,11 +410,11 @@ export const db = {
       if (uid) {
         const path = `users/${uid}/invoices/${invoice.id}`;
         try {
-          await setDoc(doc(fdb, `users/${uid}/invoices`, invoice.id), {
+          await setDoc(doc(fdb, `users/${uid}/invoices`, invoice.id), sanitizeForFirestore({
             ...invoice,
             uid,
             updatedAt: new Date().toISOString()
-          });
+          }));
         } catch (e) {
           handleFirestoreError(e, OperationType.WRITE, path);
         }
@@ -442,11 +455,11 @@ export const db = {
     if (uid) {
       const path = `users/${uid}/productInvoices/${invoice.id}`;
       try {
-        await setDoc(doc(fdb, `users/${uid}/productInvoices`, invoice.id), {
+        await setDoc(doc(fdb, `users/${uid}/productInvoices`, invoice.id), sanitizeForFirestore({
           ...invoice,
           uid,
           updatedAt: new Date().toISOString()
-        });
+        }));
       } catch (e) {
         handleFirestoreError(e, OperationType.WRITE, path);
       }
@@ -535,6 +548,48 @@ export const db = {
       return true;
     } catch (e: any) {
       progressCallback(`Erreur pendant la migration: ${e.message}`);
+      return false;
+    }
+  },
+
+  syncFromCloud: async (progressCallback?: (msg: string) => void): Promise<boolean> => {
+    const uid = db.getUid();
+    if (!uid) {
+      if (progressCallback) progressCallback("Erreur: Utilisateur non connecté");
+      return false;
+    }
+
+    try {
+      if (progressCallback) progressCallback("Récupération depuis Firebase...");
+      
+      const configDoc = await getDoc(doc(fdb, 'users', uid));
+      if (configDoc.exists()) {
+        const data = configDoc.data();
+        if (data.config) {
+          localStorage.setItem(KEYS.CONFIG, JSON.stringify(data.config));
+        }
+      }
+
+      const clientsSnap = await getDocs(collection(fdb, `users/${uid}/clients`));
+      const clients = clientsSnap.docs.map(d => d.data() as Client);
+      localStorage.setItem(KEYS.CLIENTS, JSON.stringify(clients));
+
+      const apptsSnap = await getDocs(collection(fdb, `users/${uid}/appointments`));
+      const appts = apptsSnap.docs.map(d => d.data() as Appointment);
+      localStorage.setItem(KEYS.APPOINTMENTS, JSON.stringify(appts));
+
+      const invoicesSnap = await getDocs(collection(fdb, `users/${uid}/invoices`));
+      const invoices = invoicesSnap.docs.map(d => d.data() as Invoice);
+      localStorage.setItem(KEYS.INVOICES, JSON.stringify(invoices));
+
+      const pInvoicesSnap = await getDocs(collection(fdb, `users/${uid}/productInvoices`));
+      const pInvoices = pInvoicesSnap.docs.map(d => d.data());
+      localStorage.setItem(KEYS.PRODUCT_INVOICES, JSON.stringify(pInvoices));
+
+      if (progressCallback) progressCallback("Synchronisation Cloud terminée !");
+      return true;
+    } catch (e: any) {
+      if (progressCallback) progressCallback(`Erreur sync: ${e.message}`);
       return false;
     }
   },

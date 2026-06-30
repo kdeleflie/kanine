@@ -351,8 +351,18 @@ const App: React.FC = () => {
     db.saveConfig(newConfig);
   };
 
-  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
+  const handleFileImport = (e: React.ChangeEvent<HTMLInputElement> | React.DragEvent<HTMLButtonElement | HTMLDivElement>) => {
+    e.preventDefault();
+    let file: File | undefined;
+    
+    if ('dataTransfer' in e) {
+      file = e.dataTransfer.files?.[0];
+    } else {
+      file = e.target.files?.[0];
+      // Reset input value so the same file can be selected again
+      e.target.value = '';
+    }
+
     if (!file) return;
 
     setIsImporting(true);
@@ -377,6 +387,11 @@ const App: React.FC = () => {
       setIsImporting(false);
     };
     reader.readAsText(file);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLButtonElement | HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
   };
 
   const handleLogoUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -719,14 +734,17 @@ const App: React.FC = () => {
                 <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Importation</h3>
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed tracking-tight">Restaurez vos données depuis un fichier JSON précédemment exporté.</p>
-              <input type="file" ref={fileInputRef} onChange={handleFileImport} accept=".json" className="hidden" />
+              <input type="file" ref={fileInputRef} onChange={handleFileImport} accept=".json,application/json,text/plain" className="hidden" />
               <div className="flex-1 flex flex-col justify-end">
                 <button 
                   onClick={() => fileInputRef.current?.click()} 
+                  onDragOver={handleDragOver}
+                  onDrop={handleFileImport}
                   disabled={isImporting}
-                  className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 border-2 border-dashed transition-all ${isImporting ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100'}`}
+                  className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 border-2 border-dashed transition-all ${isImporting ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'}`}
+                  title="Cliquez pour sélectionner un fichier ou glissez-déposez le fichier ici"
                 >
-                  {isImporting ? "CHRGMENT..." : "DÉPOSER JSON"}
+                  {isImporting ? "CHRGMENT..." : "DÉPOSER OU CLIQUER ICI POUR JSON"}
                 </button>
               </div>
             </div>
@@ -823,6 +841,47 @@ const App: React.FC = () => {
                 </p>
               </div>
             )}
+          </div>
+
+          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col space-y-4">
+              <div className="flex items-center gap-3">
+                <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100"><Cloud size={18} /></div>
+                <div>
+                  <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Firebase Cloud</h3>
+                  <p className="text-slate-500 text-[9px] font-bold uppercase tracking-tight">Synchronisation réseau</p>
+                </div>
+              </div>
+              <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed tracking-tight">Synchronisez vos données avec Firebase si vous utilisez l'application sur un nouvel appareil ou domaine.</p>
+              
+              <div className="flex flex-col md:flex-row gap-2 w-full mt-4">
+                <button 
+                  onClick={handleMigration}
+                  disabled={isMigrating}
+                  className={`flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${isMigrating ? 'bg-slate-100 text-slate-400' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
+                >
+                  <Upload size={14} /> Envoyer vers Cloud
+                </button>
+                <button 
+                  onClick={async () => {
+                    setIsMigrating(true);
+                    setImportLogs([]);
+                    const success = await db.syncFromCloud((msg) => setMigrationMsg(msg));
+                    setIsMigrating(false);
+                    if (success) {
+                      setAlertState({
+                        isOpen: true,
+                        title: "Synchronisation Réussie",
+                        message: "Vos données ont été récupérées depuis Firebase !"
+                      });
+                      setTimeout(() => window.location.reload(), 2000);
+                    }
+                  }}
+                  disabled={isMigrating}
+                  className={`flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${isMigrating ? 'bg-slate-100 text-slate-400' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                >
+                  <Download size={14} /> Récupérer du Cloud
+                </button>
+              </div>
           </div>
 
           {(importLogs.length > 0 || isImporting) && (

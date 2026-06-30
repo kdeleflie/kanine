@@ -5,9 +5,8 @@ import tailwindcss from '@tailwindcss/vite';
 
 export default defineConfig(({ command, mode }) => {
     const env = loadEnv(mode, '.', '');
-    // Utilise le chemin relatif par défaut pour plus de souplesse, 
-    // ou /kanine/ seulement pour la production GitHub.
-    const base = process.env.GITHUB_ACTIONS === 'true' ? '/kanine/' : '/';
+    // Utiliser './' permet au build de fonctionner partout (chemins relatifs)
+    const base = './';
     
     return {
       base,

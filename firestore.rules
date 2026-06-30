@@ -15,102 +15,23 @@ service cloud.firestore {
       return isSignedIn() && request.auth.uid == userId;
     }
 
-    function isValidId(id) {
-      return id is string && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
-    }
-
-    function incoming() {
-      return request.resource.data;
-    }
-
-    function existing() {
-      return resource.data;
-    }
-
-    // --- UserProfile Validation ---
-    function isValidUserProfile(data) {
-      return data.keys().hasAll(['uid', 'email', 'config']) &&
-             data.uid == request.auth.uid &&
-             data.email is string && data.email.size() <= 200 &&
-             data.config is map;
-    }
-
     match /users/{userId} {
-      allow get: if isOwner(userId);
-      allow create: if isOwner(userId) && isValidUserProfile(incoming());
-      allow update: if isOwner(userId) && isValidUserProfile(incoming()) &&
-                    incoming().uid == existing().uid &&
-                    incoming().diff(existing()).affectedKeys().hasOnly(['config', 'lastSync', 'email']);
-
-      // --- Clients ---
-      function isValidClient(data) {
-        return data.keys().hasAll(['id', 'uid', 'name']) &&
-               data.id == request.resource.id &&
-               data.uid == request.auth.uid &&
-               data.name is string && data.name.size() <= 100 &&
-               (data.get('phone', '') is string) && (data.get('phone', '').size() <= 20) &&
-               (data.get('email', '') is string) && (data.get('email', '').size() <= 200) &&
-               (data.get('weight', 0) is number);
-      }
+      allow read, write: if isOwner(userId);
 
       match /clients/{clientId} {
-        allow list: if isOwner(userId) && resource.data.uid == request.auth.uid;
-        allow get: if isOwner(userId);
-        allow create: if isOwner(userId) && isValidId(clientId) && isValidClient(incoming());
-        allow update: if isOwner(userId) && isValidClient(incoming()) &&
-                      incoming().uid == existing().uid &&
-                      incoming().id == existing().id;
-        allow delete: if isOwner(userId);
-      }
-
-      // --- Appointments ---
-      function isValidAppointment(data) {
-        return data.keys().hasAll(['id', 'uid', 'date', 'time', 'clientId']) &&
-               data.uid == request.auth.uid &&
-               data.id == request.resource.id &&
-               data.date is string && data.date.size() <= 50 &&
-               data.time is string && data.time.size() <= 20 &&
-               data.clientId is string && data.clientId.size() <= 128;
+        allow read, write: if isOwner(userId);
       }
 
       match /appointments/{apptId} {
-        allow list: if isOwner(userId) && resource.data.uid == request.auth.uid;
-        allow get: if isOwner(userId);
-        allow create: if isOwner(userId) && isValidId(apptId) && isValidAppointment(incoming());
-        allow update: if isOwner(userId) && isValidAppointment(incoming()) &&
-                      incoming().uid == existing().uid &&
-                      incoming().id == existing().id;
-        allow delete: if isOwner(userId);
-      }
-
-      // --- Invoices ---
-      function isValidInvoice(data) {
-        return data.keys().hasAll(['id', 'uid', 'number', 'date', 'clientId', 'amount']) &&
-               data.uid == request.auth.uid &&
-               data.id == request.resource.id &&
-               data.number is string && data.number.size() <= 50 &&
-               data.amount is number;
+        allow read, write: if isOwner(userId);
       }
 
       match /invoices/{invId} {
-        allow list: if isOwner(userId) && resource.data.uid == request.auth.uid;
-        allow get: if isOwner(userId);
-        allow create: if isOwner(userId) && isValidId(invId) && isValidInvoice(incoming());
-        allow update: if isOwner(userId) && isValidInvoice(incoming()) &&
-                      incoming().uid == existing().uid &&
-                      incoming().id == existing().id;
-        allow delete: if isOwner(userId);
+        allow read, write: if isOwner(userId);
       }
 
-      // --- Product Invoices ---
       match /productInvoices/{pInvId} {
-        allow list: if isOwner(userId) && resource.data.uid == request.auth.uid;
-        allow get: if isOwner(userId);
-        allow create: if isOwner(userId) && isValidId(pInvId) && isValidInvoice(incoming());
-        allow update: if isOwner(userId) && isValidInvoice(incoming()) &&
-                      incoming().uid == existing().uid &&
-                      incoming().id == existing().id;
-        allow delete: if isOwner(userId);
+        allow read, write: if isOwner(userId);
       }
     }
   }

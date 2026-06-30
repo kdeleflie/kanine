@@ -22,7 +22,7 @@ import {
   Cell
 } from 'recharts';
 
-const Dashboard: React.FC<{ user?: any, onNavigateToClient: (id: string) => void, onNavigateToTab: (tab: string) => void }> = ({ user, onNavigateToClient, onNavigateToTab }) => {
+const Dashboard: React.FC<{ syncTrigger?: number, user?: any, onNavigateToClient: (id: string) => void, onNavigateToTab: (tab: string) => void }> = ({ syncTrigger, user, onNavigateToClient, onNavigateToTab }) => {
   const [clients, setClients] = useState<any[]>([]);
   const [appointments, setAppointments] = useState<any[]>([]);
   const [invoices, setInvoices] = useState<any[]>([]);
@@ -46,7 +46,7 @@ const Dashboard: React.FC<{ user?: any, onNavigateToClient: (id: string) => void
 
   React.useEffect(() => {
     loadData();
-  }, [user]);
+  }, [user, syncTrigger]);
   
   const currentYear = new Date().getFullYear();
   const currentMonth = new Date().getMonth(); // 0-11

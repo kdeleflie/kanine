@@ -15,7 +15,7 @@ import { PhotoThumbnail } from '../components/PhotoThumbnail';
 
 const generateId = () => Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
-const ClientList: React.FC<{ user?: any, initialClientId?: string | null, onPrintInvoice: (inv: Invoice) => void, onPrintProductInvoice: (inv: ProductInvoice) => void }> = ({ user, initialClientId, onPrintInvoice, onPrintProductInvoice }) => {
+const ClientList: React.FC<{ syncTrigger?: number, user?: any, initialClientId?: string | null, onPrintInvoice: (inv: Invoice) => void, onPrintProductInvoice: (inv: ProductInvoice) => void }> = ({ syncTrigger, user, initialClientId, onPrintInvoice, onPrintProductInvoice }) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [invoices, setInvoices] = useState<Invoice[]>([]);
   const [productInvoices, setProductInvoices] = useState<ProductInvoice[]>([]);
@@ -61,7 +61,7 @@ const ClientList: React.FC<{ user?: any, initialClientId?: string | null, onPrin
 
   useEffect(() => {
     loadAllData();
-  }, [user]);
+  }, [user, syncTrigger]);
 
   useEffect(() => {
     if (selectedClient) {

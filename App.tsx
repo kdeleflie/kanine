@@ -51,13 +51,51 @@ const App: React.FC = () => {
   const [isAuthLoading, setIsAuthLoading] = useState(true);
   const [isMigrating, setIsMigrating] = useState(false);
   const [migrationMsg, setMigrationMsg] = useState('');
+  const [realtimeSyncTrigger, setRealtimeSyncTrigger] = useState(0);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (u) => {
+    const handleFirestoreError = (e: any) => {
+      setAlertState({
+        isOpen: true,
+        title: "Erreur Cloud",
+        message: `Une erreur de synchronisation est survenue: ${e.detail?.error || 'Erreur inconnue'}`
+      });
+    };
+    window.addEventListener('firestore-error', handleFirestoreError);
+    return () => window.removeEventListener('firestore-error', handleFirestoreError);
+  }, []);
+
+  useEffect(() => {
+    let unsubscribeSync: (() => void) | undefined;
+
+    const unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
       setUser(u);
+      
+      if (u) {
+        setIsMigrating(true);
+        setMigrationMsg("Mise à jour des données depuis le Cloud...");
+        try {
+          await db.syncFromCloud((msg) => setMigrationMsg(msg));
+        } catch (e) {
+          console.error("Auto sync on startup failed:", e);
+        } finally {
+          setIsMigrating(false);
+          setConfig(db.getConfig());
+
+          // Setup real-time listener AFTER initial sync
+          unsubscribeSync = db.setupRealtimeSync(() => {
+             // Force child components to re-read localStorage by changing state
+             setRealtimeSyncTrigger(prev => prev + 1);
+          });
+        }
+      }
       setIsAuthLoading(false);
     });
-    return () => unsubscribe();
+
+    return () => {
+      unsubscribeAuth();
+      if (unsubscribeSync) unsubscribeSync();
+    };
   }, []);
 
   const handleSignIn = async () => {
@@ -547,7 +585,7 @@ const App: React.FC = () => {
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
-          <p className="font-serif text-lg italic text-slate-400">Chargement de votre salon...</p>
+          <p className="font-serif text-lg italic text-slate-400">{migrationMsg || "Chargement de votre salon..."}</p>
         </div>
       </div>
     );
@@ -592,10 +630,10 @@ const App: React.FC = () => {
         message={alertState.message} 
         onClose={() => setAlertState(prev => ({ ...prev, isOpen: false }))} 
       />
-      {activeTab === 'dashboard' && <Dashboard user={user} onNavigateToClient={(id) => { setSelectedClientId(id); setActiveTab('clients'); }} onNavigateToTab={(tab) => setActiveTab(tab)} />}
-      {activeTab === 'clients' && <ClientList user={user} initialClientId={selectedClientId} onPrintInvoice={handlePrint} onPrintProductInvoice={handlePrintProductInvoice} />}
-      {activeTab === 'planning' && <Planning user={user} onPrintInvoice={handlePrint} />}
-      {activeTab === 'products' && <ProductSales onPrintProductInvoice={handlePrintProductInvoice} />}
+      {activeTab === 'dashboard' && <Dashboard syncTrigger={realtimeSyncTrigger} user={user} onNavigateToClient={(id) => { setSelectedClientId(id); setActiveTab('clients'); }} onNavigateToTab={(tab) => setActiveTab(tab)} />}
+      {activeTab === 'clients' && <ClientList syncTrigger={realtimeSyncTrigger} user={user} initialClientId={selectedClientId} onPrintInvoice={handlePrint} onPrintProductInvoice={handlePrintProductInvoice} />}
+      {activeTab === 'planning' && <Planning syncTrigger={realtimeSyncTrigger} user={user} onPrintInvoice={handlePrint} />}
+      {activeTab === 'products' && <ProductSales syncTrigger={realtimeSyncTrigger} onPrintProductInvoice={handlePrintProductInvoice} />}
       {activeTab === 'invoices' && renderInvoicesList()}
       {activeTab === 'audit' && (
         <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
@@ -853,6 +891,29 @@ const App: React.FC = () => {
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed tracking-tight">Synchronisez vos données avec Firebase si vous utilisez l'application sur un nouvel appareil ou domaine.</p>
               
+              {user && (
+                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-2.5">
+                  <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
+                     <span>Utilisateur Connecté :</span>
+                     <span className="text-slate-800 font-black italic">{user.email}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[9px] text-slate-400 font-semibold uppercase tracking-wide">
+                     <span>Base Firestore ID :</span>
+                     <span className="font-mono bg-white px-2 py-0.5 rounded border border-slate-100 max-w-[200px] truncate font-bold text-slate-700" title={firebaseConfig.firestoreDatabaseId}>{firebaseConfig.firestoreDatabaseId}</span>
+                  </div>
+                  <div className="flex items-center justify-between text-[9px] text-slate-400 font-semibold uppercase tracking-wide">
+                     <span>Projet Firebase :</span>
+                     <span className="font-mono bg-white px-2 py-0.5 rounded border border-slate-100 max-w-[200px] truncate font-bold text-slate-700" title={firebaseConfig.projectId}>{firebaseConfig.projectId}</span>
+                  </div>
+                  <button 
+                    onClick={handleSignOut}
+                    className="mt-2 w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                  >
+                    <LogOut size={12} strokeWidth={2.5} /> Se Déconnecter
+                  </button>
+                </div>
+              )}
+
               <div className="flex flex-col md:flex-row gap-2 w-full mt-4">
                 <button 
                   onClick={handleMigration}

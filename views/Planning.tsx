@@ -26,9 +26,10 @@ const generateId = () => Math.random().toString(36).substring(2, 15) + Date.now(
 interface PlanningProps {
   onPrintInvoice?: (invoice: Invoice) => void;
   user?: any;
+  syncTrigger?: number;
 }
 
-const Planning: React.FC<PlanningProps> = ({ onPrintInvoice, user }) => {
+const Planning: React.FC<PlanningProps> = ({ onPrintInvoice, user, syncTrigger }) => {
   const [view, setView] = useState<'day' | 'month' | 'year' | 'upcoming' | 'past'>('month');
   const [currentDate, setCurrentDate] = useState(new Date());
   const [appointments, setAppointments] = useState<Appointment[]>([]);
@@ -65,7 +66,7 @@ const Planning: React.FC<PlanningProps> = ({ onPrintInvoice, user }) => {
 
   useEffect(() => {
     refreshData();
-  }, [user]);
+  }, [user, syncTrigger]);
 
   const formatDate = (date: Date) => date.toISOString().split('T')[0];
   const dateStr = formatDate(currentDate);

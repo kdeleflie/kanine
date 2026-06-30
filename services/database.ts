@@ -15,7 +15,8 @@ import {
   deleteDoc, 
   writeBatch,
   handleFirestoreError,
-  OperationType
+  OperationType,
+  onSnapshot
 } from '../firebase';
 
 const KEYS = {
@@ -48,6 +49,45 @@ const sanitizeForFirestore = (obj: any): any => {
 
 export const db = {
   getUid: () => auth.currentUser?.uid,
+
+  setupRealtimeSync: (onDataUpdate: () => void) => {
+    const uid = db.getUid();
+    if (!uid) return () => {};
+
+    const unsubscribers: (() => void)[] = [];
+
+    // Clients
+    unsubscribers.push(onSnapshot(collection(fdb, `users/${uid}/clients`), (snap) => {
+      const clients = snap.docs.map(d => d.data() as Client);
+      localStorage.setItem(KEYS.CLIENTS, JSON.stringify(clients));
+      onDataUpdate();
+    }, (error) => console.error("Clients snapshot error:", error)));
+
+    // Appointments
+    unsubscribers.push(onSnapshot(collection(fdb, `users/${uid}/appointments`), (snap) => {
+      const appts = snap.docs.map(d => d.data() as Appointment);
+      localStorage.setItem(KEYS.APPOINTMENTS, JSON.stringify(appts));
+      onDataUpdate();
+    }, (error) => console.error("Appts snapshot error:", error)));
+
+    // Invoices
+    unsubscribers.push(onSnapshot(collection(fdb, `users/${uid}/invoices`), (snap) => {
+      const invoices = snap.docs.map(d => d.data() as Invoice);
+      localStorage.setItem(KEYS.INVOICES, JSON.stringify(invoices));
+      onDataUpdate();
+    }, (error) => console.error("Invoices snapshot error:", error)));
+
+    // Product Invoices
+    unsubscribers.push(onSnapshot(collection(fdb, `users/${uid}/productInvoices`), (snap) => {
+      const pInvoices = snap.docs.map(d => d.data());
+      localStorage.setItem(KEYS.PRODUCT_INVOICES, JSON.stringify(pInvoices));
+      onDataUpdate();
+    }, (error) => console.error("Product Invoices snapshot error:", error)));
+
+    return () => {
+      unsubscribers.forEach(unsub => unsub());
+    };
+  },
 
   logAction: (action: string, details: string, undoData?: any) => {
     try {
@@ -167,15 +207,20 @@ export const db = {
       if (uid) {
         const path = `users/${uid}/clients/${client.id}`;
         try {
-          // Flatten photo for cloud if needed, or store key
-          await setDoc(doc(fdb, `users/${uid}/clients`, client.id), sanitizeForFirestore({
+          const docData = sanitizeForFirestore({
             ...clientToSave,
             uid,
             updatedAt: new Date().toISOString()
-          }));
+          });
+          console.log("Writing client to Firestore at path:", path, docData);
+          await setDoc(doc(fdb, `users/${uid}/clients`, client.id), docData);
+          console.log("Successfully wrote client to Firestore.");
         } catch (e) { 
+          console.error("Firestore write error for client:", e);
           handleFirestoreError(e, OperationType.WRITE, path);
         }
+      } else {
+        console.warn("Cannot save client to Firestore: UID is undefined.");
       }
 
       return true;
@@ -328,28 +373,33 @@ export const db = {
     } catch { return []; }
   },
 
-  saveInvoice: async (invoice: Invoice) => {
-    const invoices = db.getInvoices();
-    const index = invoices.findIndex(i => i.id === invoice.id);
-    if (index >= 0) {
-      invoices[index] = invoice;
-    } else {
-      invoices.push(invoice);
-    }
-    localStorage.setItem(KEYS.INVOICES, JSON.stringify(invoices));
-
-    const uid = db.getUid();
-    if (uid) {
-      const path = `users/${uid}/invoices/${invoice.id}`;
-      try {
-        await setDoc(doc(fdb, `users/${uid}/invoices`, invoice.id), sanitizeForFirestore({
-          ...invoice,
-          uid,
-          updatedAt: new Date().toISOString()
-        }));
-      } catch (e) { 
-        handleFirestoreError(e, OperationType.WRITE, path);
+  saveInvoice: async (invoice: Invoice): Promise<boolean> => {
+    try {
+      const invoices = db.getInvoices();
+      const index = invoices.findIndex(i => i.id === invoice.id);
+      if (index >= 0) {
+        invoices[index] = invoice;
+      } else {
+        invoices.push(invoice);
       }
+      localStorage.setItem(KEYS.INVOICES, JSON.stringify(invoices));
+
+      const uid = db.getUid();
+      if (uid) {
+        const path = `users/${uid}/invoices/${invoice.id}`;
+        try {
+          await setDoc(doc(fdb, `users/${uid}/invoices`, invoice.id), sanitizeForFirestore({
+            ...invoice,
+            uid,
+            updatedAt: new Date().toISOString()
+          }));
+        } catch (e) { 
+          handleFirestoreError(e, OperationType.WRITE, path);
+        }
+      }
+      return true;
+    } catch (e) {
+      return false;
     }
   },
 
@@ -441,28 +491,33 @@ export const db = {
     } catch { return []; }
   },
 
-  saveProductInvoice: async (invoice: any) => {
-    const invoices = db.getProductInvoices();
-    const index = invoices.findIndex(i => i.id === invoice.id);
-    if (index >= 0) {
-      invoices[index] = invoice;
-    } else {
-      invoices.push(invoice);
-    }
-    localStorage.setItem(KEYS.PRODUCT_INVOICES, JSON.stringify(invoices));
-
-    const uid = db.getUid();
-    if (uid) {
-      const path = `users/${uid}/productInvoices/${invoice.id}`;
-      try {
-        await setDoc(doc(fdb, `users/${uid}/productInvoices`, invoice.id), sanitizeForFirestore({
-          ...invoice,
-          uid,
-          updatedAt: new Date().toISOString()
-        }));
-      } catch (e) {
-        handleFirestoreError(e, OperationType.WRITE, path);
+  saveProductInvoice: async (invoice: any): Promise<boolean> => {
+    try {
+      const invoices = db.getProductInvoices();
+      const index = invoices.findIndex(i => i.id === invoice.id);
+      if (index >= 0) {
+        invoices[index] = invoice;
+      } else {
+        invoices.push(invoice);
       }
+      localStorage.setItem(KEYS.PRODUCT_INVOICES, JSON.stringify(invoices));
+
+      const uid = db.getUid();
+      if (uid) {
+        const path = `users/${uid}/productInvoices/${invoice.id}`;
+        try {
+          await setDoc(doc(fdb, `users/${uid}/productInvoices`, invoice.id), sanitizeForFirestore({
+            ...invoice,
+            uid,
+            updatedAt: new Date().toISOString()
+          }));
+        } catch (e) {
+          handleFirestoreError(e, OperationType.WRITE, path);
+        }
+      }
+      return true;
+    } catch (e) {
+      return false;
     }
   },
 
@@ -521,7 +576,8 @@ export const db = {
         if (client.photoProfile && client.photoProfile.startsWith('photo_client_')) {
           clientToMigrate.photoProfile = await get(client.photoProfile);
         }
-        await db.saveClient(clientToMigrate);
+        const success = await db.saveClient(clientToMigrate);
+        if (!success) throw new Error(`Échec de sauvegarde du client ${client.name}`);
       }
 
       // Appointments
@@ -531,18 +587,25 @@ export const db = {
         const apptToMigrate = { ...appt };
         if (appt.photoBefore && appt.photoBefore.startsWith('photo_before_')) apptToMigrate.photoBefore = await get(appt.photoBefore);
         if (appt.photoAfter && appt.photoAfter.startsWith('photo_after_')) apptToMigrate.photoAfter = await get(appt.photoAfter);
-        await db.saveAppointment(apptToMigrate);
+        const success = await db.saveAppointment(apptToMigrate);
+        if (!success) throw new Error(`Échec de sauvegarde du rendez-vous`);
       }
 
       // Invoices
       const invoices = db.getInvoices();
       progressCallback(`Migration de ${invoices.length} factures...`);
-      for (const inv of invoices) await db.saveInvoice(inv);
+      for (const inv of invoices) {
+         const success = await db.saveInvoice(inv);
+         if (!success) throw new Error(`Échec de sauvegarde de la facture`);
+      }
 
       // Product Invoices
       const pInvoices = db.getProductInvoices();
       progressCallback(`Migration de ${pInvoices.length} factures produits...`);
-      for (const pinv of pInvoices) await db.saveProductInvoice(pinv);
+      for (const pinv of pInvoices) {
+        const success = await db.saveProductInvoice(pinv);
+        if (!success) throw new Error(`Échec de sauvegarde de la facture produit`);
+      }
 
       progressCallback("Migration terminée avec succès !");
       return true;
@@ -589,6 +652,7 @@ export const db = {
       if (progressCallback) progressCallback("Synchronisation Cloud terminée !");
       return true;
     } catch (e: any) {
+      console.error("syncFromCloud FATAL ERROR:", e);
       if (progressCallback) progressCallback(`Erreur sync: ${e.message}`);
       return false;
     }

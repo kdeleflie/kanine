@@ -8,7 +8,7 @@ import { ConfirmModal } from '../components/ConfirmModal';
 
 const generateId = () => Math.random().toString(36).substring(2, 15) + Date.now().toString(36);
 
-const ProductSales: React.FC<{ onPrintProductInvoice?: (inv: ProductInvoice) => void }> = ({ onPrintProductInvoice }) => {
+const ProductSales: React.FC<{ syncTrigger?: number, onPrintProductInvoice?: (inv: ProductInvoice) => void }> = ({ syncTrigger, onPrintProductInvoice }) => {
   const [clients, setClients] = useState<Client[]>([]);
   const [search, setSearch] = useState('');
   const [selectedClient, setSelectedClient] = useState<Client | null>(null);
@@ -33,7 +33,7 @@ const ProductSales: React.FC<{ onPrintProductInvoice?: (inv: ProductInvoice) => 
       setConfig(cfg);
     };
     init();
-  }, []);
+  }, [syncTrigger]);
 
   useEffect(() => {
     if (selectedClient) {

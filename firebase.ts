@@ -53,6 +53,10 @@ export function handleFirestoreError(error: unknown, operationType: OperationTyp
     path
   }
   console.error('Firestore Error: ', JSON.stringify(errInfo));
+  
+  // Dispatch event so App.tsx can show an alert
+  window.dispatchEvent(new CustomEvent('firestore-error', { detail: errInfo }));
+
   throw new Error(JSON.stringify(errInfo));
 }
 

@@ -15,7 +15,7 @@ import {
 interface LayoutProps {
   children: React.ReactNode;
   activeTab: string;
-  setActiveTab: (tab: string) => void;
+  setActiveTab: (tab: string, e?: React.MouseEvent) => void;
 }
 
 const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) => {
@@ -43,7 +43,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
           {menuItems.map((item) => (
             <button
               key={item.id}
-              onClick={() => setActiveTab(item.id)}
+              onClick={(e) => setActiveTab(item.id, e)}
               className={`w-full flex items-center gap-4 px-6 py-3.5 rounded-xl transition-all ${
                 activeTab === item.id 
                 ? 'bg-emerald-600/20 text-emerald-400 border border-emerald-500/20 shadow-sm' 
@@ -108,7 +108,7 @@ const Layout: React.FC<LayoutProps> = ({ children, activeTab, setActiveTab }) =>
            {menuItems.map((item) => (
              <button
                key={item.id}
-               onClick={() => setActiveTab(item.id)}
+               onClick={(e) => setActiveTab(item.id, e)}
                className={`flex flex-col items-center gap-1 p-2 rounded-xl transition-all ${
                  activeTab === item.id ? 'text-indigo-600 scale-110' : 'text-slate-400'
                }`}

@@ -34,6 +34,17 @@ const App: React.FC = () => {
   const [invoiceType, setInvoiceType] = useState<'grooming' | 'products'>('grooming');
   const [searchQuery, setSearchQuery] = useState('');
 
+  // Hidden Menu State
+  const [showHiddenMenu, setShowHiddenMenu] = useState(false);
+  const [hiddenRecordComment, setHiddenRecordComment] = useState('');
+  const [hiddenRecordAmount, setHiddenRecordAmount] = useState('');
+  const [hiddenRecordClientId, setHiddenRecordClientId] = useState('');
+  const [hiddenRecordDate, setHiddenRecordDate] = useState(new Date().toISOString().split('T')[0]);
+  const [hiddenRecords, setHiddenRecords] = useState(db.getInternalRecords());
+  const [hiddenFilterYear, setHiddenFilterYear] = useState<number>(new Date().getFullYear());
+  const [hiddenFilterPeriodType, setHiddenFilterPeriodType] = useState<'month'|'quarter'|'year'>('month');
+  const [hiddenFilterPeriodValue, setHiddenFilterPeriodValue] = useState<number>(new Date().getMonth());
+
   const [confirmState, setConfirmState] = useState<{isOpen: boolean, title: string, message: string, onConfirm: () => void}>({
     isOpen: false,
     title: '',
@@ -471,6 +482,191 @@ const App: React.FC = () => {
 
     return (
     <div className="max-w-5xl mx-auto space-y-4 pb-10">
+      {showHiddenMenu && (
+        <div className="bg-slate-900 p-6 rounded-xl shadow-lg border border-slate-800 text-white mb-6">
+          <h3 className="font-bold mb-4 uppercase tracking-wider text-slate-300">Entrée Masquée</h3>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+            <input
+              type="date"
+              value={hiddenRecordDate}
+              onChange={e => setHiddenRecordDate(e.target.value)}
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <select
+              value={hiddenRecordClientId}
+              onChange={e => setHiddenRecordClientId(e.target.value)}
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500 col-span-2"
+            >
+              <option value="">Sélectionner un client/animal...</option>
+              {db.getClients().map(c => <option key={c.id} value={c.id}>{c.ownerName || 'Sans nom'} - {c.name || 'Sans nom'}</option>)}
+            </select>
+            <input
+              type="text"
+              placeholder="Commentaire"
+              value={hiddenRecordComment}
+              onChange={e => setHiddenRecordComment(e.target.value)}
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+            />
+            <div className="flex gap-2">
+              <input
+                type="number"
+                placeholder="Montant (€)"
+                value={hiddenRecordAmount}
+                onChange={e => setHiddenRecordAmount(e.target.value)}
+                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500 w-full"
+              />
+              <button
+                onClick={() => {
+                  if (!hiddenRecordClientId || !hiddenRecordAmount) return;
+                  db.addInternalRecord({
+                    clientId: hiddenRecordClientId,
+                    comment: hiddenRecordComment,
+                    amount: parseFloat(hiddenRecordAmount),
+                    date: new Date(hiddenRecordDate).toISOString()
+                  });
+                  setHiddenRecordAmount('');
+                  setHiddenRecordComment('');
+                  setHiddenRecordClientId('');
+                  setHiddenRecords(db.getInternalRecords());
+                }}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-lg font-bold"
+              >
+                +
+              </button>
+            </div>
+          </div>
+          
+          <div className="flex flex-wrap gap-4 mb-4">
+            <select
+              value={hiddenFilterPeriodType}
+              onChange={e => {
+                const t = e.target.value as 'month'|'quarter'|'year';
+                setHiddenFilterPeriodType(t);
+                if (t === 'month') setHiddenFilterPeriodValue(new Date().getMonth());
+                else if (t === 'quarter') setHiddenFilterPeriodValue(Math.floor(new Date().getMonth() / 3));
+              }}
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              <option value="month">Mois</option>
+              <option value="quarter">Trimestre</option>
+              <option value="year">Année</option>
+            </select>
+
+            {hiddenFilterPeriodType === 'month' && (
+              <select
+                value={hiddenFilterPeriodValue}
+                onChange={e => setHiddenFilterPeriodValue(Number(e.target.value))}
+                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+              >
+                {Array.from({length: 12}).map((_, i) => (
+                  <option key={i} value={i}>{new Date(2000, i, 1).toLocaleString('fr-FR', {month: 'long'})}</option>
+                ))}
+              </select>
+            )}
+
+            {hiddenFilterPeriodType === 'quarter' && (
+              <select
+                value={hiddenFilterPeriodValue}
+                onChange={e => setHiddenFilterPeriodValue(Number(e.target.value))}
+                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+              >
+                <option value={0}>T1 (Jan-Mar)</option>
+                <option value={1}>T2 (Avr-Juin)</option>
+                <option value={2}>T3 (Juil-Sep)</option>
+                <option value={3}>T4 (Oct-Déc)</option>
+              </select>
+            )}
+
+            <select
+              value={hiddenFilterYear}
+              onChange={e => setHiddenFilterYear(Number(e.target.value))}
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+            >
+              {Array.from(new Set([new Date().getFullYear(), ...hiddenRecords.map(r => new Date(r.date).getFullYear())])).sort((a,b)=>b-a).map(y => (
+                <option key={y} value={y}>{y}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
+            <table className="w-full text-left text-sm">
+              <thead className="bg-slate-700/50 text-slate-300">
+                <tr>
+                  <th className="p-3">Date</th>
+                  <th className="p-3">Client</th>
+                  <th className="p-3">Animal</th>
+                  <th className="p-3">Commentaire</th>
+                  <th className="p-3 text-right">Montant</th>
+                  <th className="p-3"></th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-slate-700/50">
+                {(() => {
+                  const filteredHiddenRecords = hiddenRecords.filter(r => {
+                    const d = new Date(r.date);
+                    if (d.getFullYear() !== hiddenFilterYear) return false;
+                    if (hiddenFilterPeriodType === 'month') return d.getMonth() === hiddenFilterPeriodValue;
+                    if (hiddenFilterPeriodType === 'quarter') return Math.floor(d.getMonth() / 3) === hiddenFilterPeriodValue;
+                    return true;
+                  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+
+                  const totalAmount = filteredHiddenRecords.reduce((sum, r) => sum + r.amount, 0);
+                  const clients = db.getClients();
+
+                  return (
+                    <>
+                      {filteredHiddenRecords.map(record => {
+                        const client = clients.find(c => c.id === record.clientId);
+                        return (
+                          <tr key={record.id} className="hover:bg-slate-800/50">
+                            <td className="p-3 whitespace-nowrap">{new Date(record.date).toLocaleDateString('fr-FR')}</td>
+                            <td className="p-3 font-medium">{client?.ownerName || 'Inconnu'}</td>
+                            <td className="p-3 text-slate-400">{client?.name || 'Inconnu'}</td>
+                            <td className="p-3 text-slate-400">{record.comment}</td>
+                            <td className="p-3 text-right font-bold text-emerald-400">{record.amount.toFixed(2)} €</td>
+                            <td className="p-3 text-right">
+                              <button 
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setConfirmState({
+                                    isOpen: true,
+                                    title: "Supprimer",
+                                    message: "Voulez-vous vraiment supprimer cette entrée ?",
+                                    onConfirm: () => {
+                                      db.deleteInternalRecord(record.id);
+                                      setHiddenRecords(db.getInternalRecords());
+                                      setConfirmState(prev => ({ ...prev, isOpen: false }));
+                                    }
+                                  });
+                                }}
+                                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                              >
+                                <Trash2 size={16} />
+                              </button>
+                            </td>
+                          </tr>
+                        );
+                      })}
+                      {filteredHiddenRecords.length === 0 && (
+                        <tr>
+                          <td colSpan={6} className="p-4 text-center text-slate-500 italic">Aucune donnée</td>
+                        </tr>
+                      )}
+                      {filteredHiddenRecords.length > 0 && (
+                        <tr className="bg-slate-700/30">
+                          <td colSpan={4} className="p-3 text-right font-bold text-slate-300 uppercase tracking-widest text-xs">Total de la période :</td>
+                          <td className="p-3 text-right font-black text-emerald-400">{totalAmount.toFixed(2)} €</td>
+                          <td className="p-3"></td>
+                        </tr>
+                      )}
+                    </>
+                  );
+                })()}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
       <div className="flex flex-col md:flex-row items-center justify-between mb-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm gap-4">
         <h2 className="text-sm font-black text-slate-800 uppercase flex items-center gap-2">
           <FileText className="text-indigo-600" size={18} /> Factures
@@ -623,7 +819,13 @@ const App: React.FC = () => {
   }
 
   return (
-    <Layout activeTab={activeTab} setActiveTab={(t) => { setSelectedClientId(null); setActiveTab(t); }}>
+    <Layout activeTab={activeTab} setActiveTab={(t, e) => { 
+      setSelectedClientId(null); 
+      setActiveTab(t);
+      if (t === 'invoices' && e?.altKey) {
+        setShowHiddenMenu(prev => !prev);
+      }
+    }}>
       <AlertModal 
         isOpen={alertState.isOpen} 
         title={alertState.title} 

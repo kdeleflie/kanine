@@ -1,5 +1,5 @@
 
-import { Client, Appointment, Invoice, Configuration } from '../types';
+import { Client, Appointment, Invoice, Configuration, InternalRecord } from '../types';
 import { INITIAL_CONFIG } from '../constants';
 import { set, del, get } from 'idb-keyval';
 import { 
@@ -25,7 +25,8 @@ const KEYS = {
   INVOICES: 'groom_invoices',
   PRODUCT_INVOICES: 'groom_product_invoices',
   CONFIG: 'groom_config',
-  AUDIT: 'groom_audit_log'
+  AUDIT: 'groom_audit_log',
+  INTERNAL_RECORDS: 'groom_internal_records'
 };
 
 export interface ImportResult {
@@ -134,6 +135,26 @@ export const db = {
     audit.splice(entryIndex, 1);
     localStorage.setItem(KEYS.AUDIT, JSON.stringify(audit));
     return true;
+  },
+
+  getInternalRecords: (): InternalRecord[] => {
+    try {
+      const dataStr = localStorage.getItem(KEYS.INTERNAL_RECORDS);
+      return dataStr ? JSON.parse(dataStr) : [];
+    } catch { return []; }
+  },
+
+  addInternalRecord: (record: Omit<InternalRecord, 'id'>) => {
+    const records = db.getInternalRecords();
+    const newRecord = { ...record, id: Math.random().toString(36).substr(2, 9) };
+    records.push(newRecord);
+    localStorage.setItem(KEYS.INTERNAL_RECORDS, JSON.stringify(records));
+  },
+
+  deleteInternalRecord: (id: string) => {
+    const records = db.getInternalRecords();
+    const filtered = records.filter(r => r.id !== id);
+    localStorage.setItem(KEYS.INTERNAL_RECORDS, JSON.stringify(filtered));
   },
 
   getAuditLog: (): any[] => {

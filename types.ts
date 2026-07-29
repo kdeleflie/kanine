@@ -113,4 +113,13 @@ export interface Configuration {
   email?: string;
   logo?: string;
   autoBackup?: AutoBackupConfig;
+  hiddenMenuShortcut?: string;
+}
+
+export interface InternalRecord {
+  id: string;
+  clientId: string;
+  date: string;
+  comment: string;
+  amount: number;
 }

@@ -15,6 +15,7 @@ const ProductSales: React.FC<{ syncTrigger?: number, onPrintProductInvoice?: (in
   const [history, setHistory] = useState<ProductInvoice[]>([]);
   const [isCreatingInvoice, setIsCreatingInvoice] = useState(false);
   const [config, setConfig] = useState<any>(null);
+  const [confirmState, setConfirmState] = useState({ isOpen: false, title: '', message: '', onConfirm: () => {} });
   
   // New Invoice State
   const [invoiceItems, setInvoiceItems] = useState<ProductInvoiceItem[]>([]);
@@ -335,6 +336,28 @@ const ProductSales: React.FC<{ syncTrigger?: number, onPrintProductInvoice?: (in
                               </div>
                             ))}
                           </div>
+                          <div className="absolute top-4 right-4 z-20">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setConfirmState({
+                                  isOpen: true,
+                                  title: 'Supprimer la vente',
+                                  message: `Êtes-vous sûr de vouloir supprimer la vente ${inv.number} d'un montant de ${(inv.amount || 0).toFixed(2)}€ ?`,
+                                  onConfirm: async () => {
+                                    await db.deleteProductInvoice(inv.id);
+                                    if (selectedClient) {
+                                      loadHistory(selectedClient.id);
+                                    }
+                                  }
+                                });
+                              }}
+                              className="p-2 bg-white text-slate-300 hover:text-red-500 rounded-full opacity-0 group-hover:opacity-100 transition-all shadow-sm hover:shadow-md border border-slate-100"
+                              title="Supprimer la vente"
+                            >
+                              <Trash2 size={16} />
+                            </button>
+                          </div>
                         </div>
                       ))}
                     </div>
@@ -351,6 +374,17 @@ const ProductSales: React.FC<{ syncTrigger?: number, onPrintProductInvoice?: (in
           </div>
         )}
       </div>
+      
+      <ConfirmModal
+        isOpen={confirmState.isOpen}
+        title={confirmState.title}
+        message={confirmState.message}
+        onConfirm={() => {
+          confirmState.onConfirm();
+          setConfirmState(prev => ({ ...prev, isOpen: false }));
+        }}
+        onCancel={() => setConfirmState(prev => ({ ...prev, isOpen: false }))}
+      />
     </div>
   );
 };

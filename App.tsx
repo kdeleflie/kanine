@@ -822,7 +822,7 @@ const App: React.FC = () => {
     <Layout activeTab={activeTab} setActiveTab={(t, e) => { 
       setSelectedClientId(null); 
       setActiveTab(t);
-      if (t === 'invoices' && e?.altKey) {
+      if (t === 'invoices' && (e?.altKey || e?.shiftKey || e?.ctrlKey || e?.metaKey)) {
         setShowHiddenMenu(prev => !prev);
       }
     }}>

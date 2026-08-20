@@ -77,6 +77,10 @@ const App: React.FC = () => {
   }, []);
 
   useEffect(() => {
+    setHiddenRecords(db.getInternalRecords());
+  }, [realtimeSyncTrigger]);
+
+  useEffect(() => {
     let unsubscribeSync: (() => void) | undefined;
 
     const unsubscribeAuth = onAuthStateChanged(auth, async (u) => {
@@ -92,6 +96,7 @@ const App: React.FC = () => {
         } finally {
           setIsMigrating(false);
           setConfig(db.getConfig());
+          setRealtimeSyncTrigger(prev => prev + 1);
 
           // Setup real-time listener AFTER initial sync
           unsubscribeSync = db.setupRealtimeSync(() => {

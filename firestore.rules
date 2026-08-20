@@ -33,6 +33,9 @@ service cloud.firestore {
       match /productInvoices/{pInvId} {
         allow read, write: if isOwner(userId);
       }
+      match /internalRecords/{recordId} {
+        allow read, write: if isOwner(userId);
+      }
     }
   }
 }

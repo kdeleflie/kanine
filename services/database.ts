@@ -85,6 +85,13 @@ export const db = {
       onDataUpdate();
     }, (error) => console.error("Product Invoices snapshot error:", error)));
 
+    // Internal Records
+    unsubscribers.push(onSnapshot(collection(fdb, `users/${uid}/internalRecords`), (snap) => {
+      const iRecords = snap.docs.map(d => d.data() as InternalRecord);
+      localStorage.setItem(KEYS.INTERNAL_RECORDS, JSON.stringify(iRecords));
+      onDataUpdate();
+    }, (error) => console.error("Internal Records snapshot error:", error)));
+
     return () => {
       unsubscribers.forEach(unsub => unsub());
     };
@@ -144,17 +151,41 @@ export const db = {
     } catch { return []; }
   },
 
-  addInternalRecord: (record: Omit<InternalRecord, 'id'>) => {
+  addInternalRecord: async (record: Omit<InternalRecord, 'id'>) => {
     const records = db.getInternalRecords();
     const newRecord = { ...record, id: Math.random().toString(36).substr(2, 9) };
     records.push(newRecord);
     localStorage.setItem(KEYS.INTERNAL_RECORDS, JSON.stringify(records));
+
+    const uid = db.getUid();
+    if (uid) {
+      const path = `users/${uid}/internalRecords/${newRecord.id}`;
+      try {
+        await setDoc(doc(fdb, `users/${uid}/internalRecords`, newRecord.id), sanitizeForFirestore({
+          ...newRecord,
+          uid,
+          updatedAt: new Date().toISOString()
+        }));
+      } catch (e) {
+        handleFirestoreError(e, OperationType.WRITE, path);
+      }
+    }
   },
 
-  deleteInternalRecord: (id: string) => {
+  deleteInternalRecord: async (id: string) => {
     const records = db.getInternalRecords();
     const filtered = records.filter(r => r.id !== id);
     localStorage.setItem(KEYS.INTERNAL_RECORDS, JSON.stringify(filtered));
+
+    const uid = db.getUid();
+    if (uid) {
+      const path = `users/${uid}/internalRecords/${id}`;
+      try {
+        await deleteDoc(doc(fdb, `users/${uid}/internalRecords`, id));
+      } catch (e) {
+        handleFirestoreError(e, OperationType.DELETE, path);
+      }
+    }
   },
 
   getAuditLog: (): any[] => {
@@ -628,6 +659,24 @@ export const db = {
         if (!success) throw new Error(`Échec de sauvegarde de la facture produit`);
       }
 
+      // Internal Records
+      const iRecords = db.getInternalRecords();
+      if (iRecords.length > 0) {
+        progressCallback(`Migration de ${iRecords.length} entrées cachées...`);
+        for (const rec of iRecords) {
+          const path = `users/${uid}/internalRecords/${rec.id}`;
+          try {
+            await setDoc(doc(fdb, `users/${uid}/internalRecords`, rec.id), sanitizeForFirestore({
+              ...rec,
+              uid,
+              updatedAt: new Date().toISOString()
+            }));
+          } catch (e) {
+            handleFirestoreError(e, OperationType.WRITE, path);
+          }
+        }
+      }
+
       progressCallback("Migration terminée avec succès !");
       return true;
     } catch (e: any) {
@@ -669,6 +718,10 @@ export const db = {
       const pInvoicesSnap = await getDocs(collection(fdb, `users/${uid}/productInvoices`));
       const pInvoices = pInvoicesSnap.docs.map(d => d.data());
       localStorage.setItem(KEYS.PRODUCT_INVOICES, JSON.stringify(pInvoices));
+
+      const iRecordsSnap = await getDocs(collection(fdb, `users/${uid}/internalRecords`));
+      const iRecords = iRecordsSnap.docs.map(d => d.data() as InternalRecord);
+      localStorage.setItem(KEYS.INTERNAL_RECORDS, JSON.stringify(iRecords));
 
       if (progressCallback) progressCallback("Synchronisation Cloud terminée !");
       return true;
@@ -759,6 +812,7 @@ export const db = {
       appointments: exportedAppts,
       invoices: options?.photosOnly ? [] : db.getInvoices(),
       productInvoices: options?.photosOnly ? [] : db.getProductInvoices(),
+      internalRecords: options?.photosOnly ? [] : db.getInternalRecords(),
       config: options?.photosOnly ? null : db.getConfig()
     };
 
@@ -877,11 +931,12 @@ export const db = {
       const apptsStr = JSON.stringify(apptsToSave);
       const invsStr = JSON.stringify(data.invoices || []);
       const productInvsStr = JSON.stringify(data.productInvoices || []);
+      const internalRecordsStr = JSON.stringify(data.internalRecords || []);
       const configStr = JSON.stringify(data.config || INITIAL_CONFIG);
 
       // On teste d'abord l'écriture dans des clés de test
       try {
-        localStorage.setItem('__test_quota__', clientsStr + apptsStr + invsStr + productInvsStr);
+        localStorage.setItem('__test_quota__', clientsStr + apptsStr + invsStr + productInvsStr + internalRecordsStr);
         localStorage.removeItem('__test_quota__');
         log("Espace de stockage suffisant.");
       } catch (e) {
@@ -893,6 +948,7 @@ export const db = {
       localStorage.setItem(KEYS.APPOINTMENTS, apptsStr);
       localStorage.setItem(KEYS.INVOICES, invsStr);
       localStorage.setItem(KEYS.PRODUCT_INVOICES, productInvsStr);
+      localStorage.setItem(KEYS.INTERNAL_RECORDS, internalRecordsStr);
       
       if (backupType === 'full' && data.config) {
         localStorage.setItem(KEYS.CONFIG, configStr);

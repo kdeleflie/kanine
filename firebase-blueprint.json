@@ -53,11 +53,12 @@
         "services": { "type": "array", "items": { "type": "string" } },
         "notes": { "type": "string" },
         "duration": { "type": "number" },
-        "status": { "type": "string", "enum": ["pending", "completed", "cancelled", "invoiced"] },
+        "status": { "type": "string", "enum": ["pending", "completed", "cancelled", "invoiced", "blocked"] },
+        "isBlocked": { "type": "boolean" },
         "photoBefore": { "type": "string" },
         "photoAfter": { "type": "string" }
       },
-      "required": ["id", "uid", "date", "time", "clientId"]
+      "required": ["id", "uid", "date", "time"]
     },
     "Invoice": {
       "title": "Invoice",

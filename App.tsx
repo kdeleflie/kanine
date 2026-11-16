@@ -486,21 +486,21 @@ const App: React.FC = () => {
     }).reverse();
 
     return (
-    <div className="max-w-5xl mx-auto space-y-4 pb-10">
+    <div className="max-w-5xl mx-auto space-y-3 pb-6">
       {showHiddenMenu && (
-        <div className="bg-slate-900 p-6 rounded-xl shadow-lg border border-slate-800 text-white mb-6">
-          <h3 className="font-bold mb-4 uppercase tracking-wider text-slate-300">Entrée Masquée</h3>
-          <div className="grid grid-cols-1 md:grid-cols-5 gap-4 mb-6">
+        <div className="bg-slate-900 p-4 rounded-xl shadow-lg border border-slate-800 text-white mb-4">
+          <h3 className="font-bold text-xs mb-3 uppercase tracking-wider text-slate-300">Entrée Masquée</h3>
+          <div className="grid grid-cols-1 md:grid-cols-5 gap-2.5 mb-4">
             <input
               type="date"
               value={hiddenRecordDate}
               onChange={e => setHiddenRecordDate(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-500"
             />
             <select
               value={hiddenRecordClientId}
               onChange={e => setHiddenRecordClientId(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500 col-span-2"
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-500 col-span-2"
             >
               <option value="">Sélectionner un client/animal...</option>
               {db.getClients().map(c => <option key={c.id} value={c.id}>{c.ownerName || 'Sans nom'} - {c.name || 'Sans nom'}</option>)}
@@ -510,7 +510,7 @@ const App: React.FC = () => {
               placeholder="Commentaire"
               value={hiddenRecordComment}
               onChange={e => setHiddenRecordComment(e.target.value)}
-              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-500"
             />
             <div className="flex gap-2">
               <input
@@ -518,7 +518,7 @@ const App: React.FC = () => {
                 placeholder="Montant (€)"
                 value={hiddenRecordAmount}
                 onChange={e => setHiddenRecordAmount(e.target.value)}
-                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500 w-full"
+                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-xs outline-none focus:ring-1 focus:ring-blue-500 w-full"
               />
               <button
                 onClick={() => {
@@ -534,14 +534,14 @@ const App: React.FC = () => {
                   setHiddenRecordClientId('');
                   setHiddenRecords(db.getInternalRecords());
                 }}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 rounded-lg font-bold"
+                className="bg-blue-600 hover:bg-blue-700 text-white px-3.5 rounded-lg font-bold"
               >
                 +
               </button>
             </div>
           </div>
           
-          <div className="flex flex-wrap gap-4 mb-4">
+          <div className="flex flex-wrap gap-2.5 mb-3">
             <select
               value={hiddenFilterPeriodType}
               onChange={e => {
@@ -550,7 +550,7 @@ const App: React.FC = () => {
                 if (t === 'month') setHiddenFilterPeriodValue(new Date().getMonth());
                 else if (t === 'quarter') setHiddenFilterPeriodValue(Math.floor(new Date().getMonth() / 3));
               }}
-              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500"
             >
               <option value="month">Mois</option>
               <option value="quarter">Trimestre</option>
@@ -561,7 +561,7 @@ const App: React.FC = () => {
               <select
                 value={hiddenFilterPeriodValue}
                 onChange={e => setHiddenFilterPeriodValue(Number(e.target.value))}
-                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500"
               >
                 {Array.from({length: 12}).map((_, i) => (
                   <option key={i} value={i}>{new Date(2000, i, 1).toLocaleString('fr-FR', {month: 'long'})}</option>
@@ -573,7 +573,7 @@ const App: React.FC = () => {
               <select
                 value={hiddenFilterPeriodValue}
                 onChange={e => setHiddenFilterPeriodValue(Number(e.target.value))}
-                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+                className="bg-slate-800 border border-slate-700 text-white rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500"
               >
                 <option value={0}>T1 (Jan-Mar)</option>
                 <option value={1}>T2 (Avr-Juin)</option>
@@ -585,7 +585,7 @@ const App: React.FC = () => {
             <select
               value={hiddenFilterYear}
               onChange={e => setHiddenFilterYear(Number(e.target.value))}
-              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-2 text-sm outline-none focus:ring-1 focus:ring-indigo-500"
+              className="bg-slate-800 border border-slate-700 text-white rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500"
             >
               {Array.from(new Set([new Date().getFullYear(), ...hiddenRecords.map(r => new Date(r.date).getFullYear())])).sort((a,b)=>b-a).map(y => (
                 <option key={y} value={y}>{y}</option>
@@ -594,15 +594,15 @@ const App: React.FC = () => {
           </div>
 
           <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
-            <table className="w-full text-left text-sm">
+            <table className="w-full text-left text-xs">
               <thead className="bg-slate-700/50 text-slate-300">
                 <tr>
-                  <th className="p-3">Date</th>
-                  <th className="p-3">Client</th>
-                  <th className="p-3">Animal</th>
-                  <th className="p-3">Commentaire</th>
-                  <th className="p-3 text-right">Montant</th>
-                  <th className="p-3"></th>
+                  <th className="p-2.5">Date</th>
+                  <th className="p-2.5">Client</th>
+                  <th className="p-2.5">Animal</th>
+                  <th className="p-2.5">Commentaire</th>
+                  <th className="p-2.5 text-right">Montant</th>
+                  <th className="p-2.5"></th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-slate-700/50">
@@ -624,12 +624,12 @@ const App: React.FC = () => {
                         const client = clients.find(c => c.id === record.clientId);
                         return (
                           <tr key={record.id} className="hover:bg-slate-800/50">
-                            <td className="p-3 whitespace-nowrap">{new Date(record.date).toLocaleDateString('fr-FR')}</td>
-                            <td className="p-3 font-medium">{client?.ownerName || 'Inconnu'}</td>
-                            <td className="p-3 text-slate-400">{client?.name || 'Inconnu'}</td>
-                            <td className="p-3 text-slate-400">{record.comment}</td>
-                            <td className="p-3 text-right font-bold text-emerald-400">{record.amount.toFixed(2)} €</td>
-                            <td className="p-3 text-right">
+                            <td className="p-2.5 whitespace-nowrap">{new Date(record.date).toLocaleDateString('fr-FR')}</td>
+                            <td className="p-2.5 font-medium">{client?.ownerName || 'Inconnu'}</td>
+                            <td className="p-2.5 text-slate-400">{client?.name || 'Inconnu'}</td>
+                            <td className="p-2.5 text-slate-400">{record.comment}</td>
+                            <td className="p-2.5 text-right font-bold text-sky-400 tabular-nums">{record.amount.toFixed(2)} €</td>
+                            <td className="p-2.5 text-right">
                               <button 
                                 onClick={(e) => {
                                   e.stopPropagation();
@@ -644,9 +644,9 @@ const App: React.FC = () => {
                                     }
                                   });
                                 }}
-                                className="p-2 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
+                                className="p-1.5 text-slate-400 hover:text-red-400 hover:bg-red-400/10 rounded-lg transition-colors"
                               >
-                                <Trash2 size={16} />
+                                <Trash2 size={14} />
                               </button>
                             </td>
                           </tr>
@@ -654,14 +654,14 @@ const App: React.FC = () => {
                       })}
                       {filteredHiddenRecords.length === 0 && (
                         <tr>
-                          <td colSpan={6} className="p-4 text-center text-slate-500 italic">Aucune donnée</td>
+                          <td colSpan={6} className="p-3 text-center text-slate-500 italic">Aucune donnée</td>
                         </tr>
                       )}
                       {filteredHiddenRecords.length > 0 && (
                         <tr className="bg-slate-700/30">
-                          <td colSpan={4} className="p-3 text-right font-bold text-slate-300 uppercase tracking-widest text-xs">Total de la période :</td>
-                          <td className="p-3 text-right font-black text-emerald-400">{totalAmount.toFixed(2)} €</td>
-                          <td className="p-3"></td>
+                          <td colSpan={4} className="p-2.5 text-right font-bold text-slate-300 uppercase tracking-wider text-[11px]">Total de la période :</td>
+                          <td className="p-2.5 text-right font-black text-sky-400 tabular-nums">{totalAmount.toFixed(2)} €</td>
+                          <td className="p-2.5"></td>
                         </tr>
                       )}
                     </>
@@ -672,32 +672,38 @@ const App: React.FC = () => {
           </div>
         </div>
       )}
-      <div className="flex flex-col md:flex-row items-center justify-between mb-4 bg-white p-4 rounded-xl border border-slate-100 shadow-sm gap-4">
-        <h2 className="text-sm font-black text-slate-800 uppercase flex items-center gap-2">
-          <FileText className="text-indigo-600" size={18} /> Factures
-        </h2>
+      <div className="flex flex-col md:flex-row items-center justify-between bg-white p-3.5 rounded-2xl border border-blue-100/80 shadow-xs gap-3">
+        <div className="flex items-center gap-2.5">
+          <div className="p-2 rounded-xl bg-gradient-to-br from-blue-600 to-sky-500 text-white shadow-xs">
+            <FileText size={15} />
+          </div>
+          <div>
+            <h2 className="font-serif text-base text-slate-900 leading-none">Factures</h2>
+            <p className="text-[11px] text-slate-400 mt-0.5 tabular-nums">{filteredInvoices.length} document{filteredInvoices.length > 1 ? 's' : ''}</p>
+          </div>
+        </div>
         
         <div className="flex flex-wrap items-center gap-2">
           <div className="relative">
-             <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
+             <Search className="absolute left-2.5 top-1/2 -translate-y-1/2 text-blue-400" size={13} />
              <input 
                type="text" 
                placeholder="Rechercher..." 
-               className="pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-xs text-slate-700 outline-none focus:ring-1 focus:ring-indigo-500"
+               className="pl-8 pr-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-medium text-xs text-slate-700 outline-none focus:ring-1 focus:ring-blue-500 focus:bg-white transition-all"
                value={searchQuery}
                onChange={(e) => setSearchQuery(e.target.value)}
              />
           </div>
-          <div className="flex bg-slate-100 p-0.5 rounded-lg">
+          <div className="flex bg-blue-50/70 p-0.5 rounded-xl border border-blue-100/70">
             <button 
               onClick={() => setInvoiceType('grooming')}
-              className={`px-3 py-1.5 rounded-md font-bold text-[10px] uppercase transition-all ${invoiceType === 'grooming' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+              className={`px-3 py-1 rounded-lg font-bold text-[11px] transition-all ${invoiceType === 'grooming' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-blue-700'}`}
             >
               Services
             </button>
             <button 
               onClick={() => setInvoiceType('products')}
-              className={`px-3 py-1.5 rounded-md font-bold text-[10px] uppercase transition-all ${invoiceType === 'products' ? 'bg-white text-indigo-600 shadow-sm' : 'text-slate-500'}`}
+              className={`px-3 py-1 rounded-lg font-bold text-[11px] transition-all ${invoiceType === 'products' ? 'bg-blue-600 text-white shadow-xs' : 'text-slate-600 hover:text-blue-700'}`}
             >
               Boutique
             </button>
@@ -706,7 +712,7 @@ const App: React.FC = () => {
           <select 
             value={invoiceFilterYear} 
             onChange={(e) => setInvoiceFilterYear(parseInt(e.target.value))}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-xs text-slate-700 outline-none"
+            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs text-slate-700 outline-none tabular-nums"
           >
             {years.map(y => <option key={y} value={y}>{y}</option>)}
           </select>
@@ -714,7 +720,7 @@ const App: React.FC = () => {
           <select 
             value={invoiceFilterMonth} 
             onChange={(e) => setInvoiceFilterMonth(e.target.value === 'all' ? 'all' : parseInt(e.target.value))}
-            className="px-3 py-2 bg-slate-50 border border-slate-200 rounded-lg font-bold text-xs text-slate-700 outline-none"
+            className="px-2.5 py-1.5 bg-slate-50 border border-slate-200 rounded-xl font-bold text-xs text-slate-700 outline-none"
           >
             <option value="all">Tous les mois</option>
             {['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Juin', 'Juil', 'Août', 'Sep', 'Oct', 'Nov', 'Déc'].map((m, i) => (
@@ -726,33 +732,33 @@ const App: React.FC = () => {
 
       <div className="grid grid-cols-1 gap-2">
         {filteredInvoices.length === 0 ? (
-          <div className="text-center py-10 text-slate-400 text-xs italic bg-white rounded-xl border border-dashed border-slate-200">Aucun document pour cette période.</div>
+          <div className="text-center py-10 text-slate-400 text-xs italic bg-white rounded-2xl border border-dashed border-slate-200">Aucun document pour cette période.</div>
         ) : (
           filteredInvoices.map(inv => (
-          <div key={inv.id} className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm hover:shadow-md transition-all flex items-center justify-between gap-4 group cursor-pointer" onClick={() => invoiceType === 'grooming' ? handlePrint(inv as Invoice) : handlePrintProductInvoice(inv as any)}>
-            <div className="flex items-center gap-4">
-              <div className="w-10 h-10 bg-slate-50 rounded-lg flex items-center justify-center text-slate-400 group-hover:text-indigo-600 transition-colors">
-                <FileText size={18} />
+          <div key={inv.id} className="bg-white px-4 py-2.5 rounded-xl border border-blue-100/70 shadow-xs hover:border-blue-300 hover:bg-blue-50/20 transition-all flex items-center justify-between gap-3 group cursor-pointer" onClick={() => invoiceType === 'grooming' ? handlePrint(inv as Invoice) : handlePrintProductInvoice(inv as any)}>
+            <div className="flex items-center gap-3 min-w-0">
+              <div className={`w-9 h-9 rounded-xl flex items-center justify-center transition-colors shrink-0 ${invoiceType === 'grooming' ? 'bg-blue-50 text-blue-600 group-hover:bg-blue-600 group-hover:text-white' : 'bg-rose-50 text-rose-600 group-hover:bg-rose-600 group-hover:text-white'}`}>
+                <FileText size={15} />
               </div>
-              <div>
-                <div className="flex items-center gap-2">
-                   <h3 className="font-black text-slate-900 uppercase text-xs tracking-tight">{inv.number}</h3>
-                   <span className="text-[8px] font-black bg-emerald-50 text-emerald-600 px-1.5 py-0.5 rounded uppercase">{inv.paymentMethod}</span>
+              <div className="min-w-0">
+                <div className="flex items-center gap-2 flex-wrap">
+                   <h3 className="font-bold text-slate-900 uppercase text-xs tracking-tight">{inv.number}</h3>
+                   <span className="inline-flex items-center gap-1 text-[10px] font-bold bg-sky-50 text-sky-700 px-2 py-0.5 rounded-md border border-sky-200/70">
+                     <CheckCircle2 size={10} className="text-sky-600" /> Payé · {inv.paymentMethod}
+                   </span>
                 </div>
-                <p className="text-[10px] text-slate-500 font-bold">
-                  {new Date(inv.date).toLocaleDateString('fr-FR')} • 
-                  <span className="text-indigo-600 ml-1">{'petName' in inv ? inv.petName : inv.clientName}</span>
+                <p className="text-[11px] text-slate-500 font-medium truncate mt-0.5">
+                  {new Date(inv.date).toLocaleDateString('fr-FR')} ·{' '}
+                  <span className="text-blue-700 font-semibold">{'petName' in inv ? inv.petName : inv.clientName}</span>
                 </p>
               </div>
             </div>
             
-            <div className="flex items-center gap-6">
-               <div className="text-right">
-                  <p className="text-sm font-black text-slate-900">{(inv.amount || 0).toFixed(2)}€</p>
-               </div>
+            <div className="flex items-center gap-4 shrink-0">
+               <p className="text-sm font-bold text-slate-900 tabular-nums">{(inv.amount || 0).toFixed(2)} €</p>
                <div className="flex gap-1">
-                  <button onClick={(e) => { e.stopPropagation(); invoiceType === 'grooming' ? handlePrint(inv as Invoice) : handlePrintProductInvoice(inv as any); }} className="p-2 text-indigo-600 hover:bg-indigo-50 rounded-lg transition-all">
-                    <Printer size={16} />
+                  <button onClick={(e) => { e.stopPropagation(); invoiceType === 'grooming' ? handlePrint(inv as Invoice) : handlePrintProductInvoice(inv as any); }} className="p-1.5 text-blue-600 hover:bg-blue-100/70 rounded-lg transition-all" title="Imprimer">
+                    <Printer size={15} />
                   </button>
                   <button onClick={(e) => { 
                     e.stopPropagation();
@@ -769,8 +775,8 @@ const App: React.FC = () => {
                         window.location.reload();
                       }
                     });
-                  }} className="p-2 text-red-400 hover:bg-red-50 rounded-lg transition-all">
-                    <Trash2 size={16} />
+                  }} className="p-1.5 text-rose-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg transition-all" title="Supprimer">
+                    <Trash2 size={15} />
                   </button>
                </div>
             </div>
@@ -785,7 +791,7 @@ const App: React.FC = () => {
     return (
       <div className="min-h-screen bg-slate-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
-          <div className="w-12 h-12 border-4 border-emerald-100 border-t-emerald-600 rounded-full animate-spin"></div>
+          <div className="w-12 h-12 border-4 border-blue-100 border-t-blue-600 rounded-full animate-spin"></div>
           <p className="font-serif text-lg italic text-slate-400">{migrationMsg || "Chargement de votre salon..."}</p>
         </div>
       </div>
@@ -794,30 +800,30 @@ const App: React.FC = () => {
 
   if (!user) {
     return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 bg-[url('https://www.transparenttextures.com/patterns/cubes.png')]">
-        <div className="max-w-md w-full bg-white rounded-[2.5rem] p-12 shadow-[0_20px_50px_rgba(0,0,0,0.05)] border border-slate-100 flex flex-col items-center">
-          <div className="w-20 h-20 bg-emerald-600 rounded-3xl flex items-center justify-center mb-10 shadow-xl shadow-emerald-200 rotate-3">
-             <Scissors size={40} className="text-white -rotate-3" />
+      <div className="min-h-screen bg-gradient-to-br from-[#0b1f3a] via-[#13325f] to-[#0284c7] flex items-center justify-center p-6">
+        <div className="max-w-md w-full bg-white rounded-3xl p-8 md:p-10 shadow-2xl border border-white/20 flex flex-col items-center">
+          <div className="w-16 h-16 bg-gradient-to-br from-blue-600 to-sky-400 rounded-2xl flex items-center justify-center mb-6 shadow-lg shadow-blue-200 rotate-3">
+             <Scissors size={32} className="text-white -rotate-3" />
           </div>
           
-          <h1 className="font-serif text-4xl text-slate-900 italic mb-3 text-center">Ka'nine Smart</h1>
-          <p className="text-slate-400 font-bold uppercase text-[10px] tracking-[0.3em] mb-12 text-center">Smart Grooming Management</p>
+          <h1 className="font-serif text-3xl text-slate-900 italic mb-1.5 text-center">Ka'nine Smart</h1>
+          <p className="text-blue-600 font-bold text-xs tracking-wide mb-7 text-center">Gestion de salon de toilettage</p>
           
-          <div className="w-full space-y-6">
-            <div className="p-6 bg-slate-50 rounded-2xl border border-slate-100 italic font-serif text-slate-600 text-center leading-relaxed">
+          <div className="w-full space-y-5">
+            <div className="p-4 bg-blue-50/70 rounded-2xl border border-blue-100 italic font-serif text-slate-700 text-sm text-center leading-relaxed">
               "L'interface professionnelle dédiée aux experts du toilettage canin."
             </div>
 
             <button 
               onClick={handleSignIn}
-              className="w-full py-5 bg-slate-900 text-white rounded-2xl font-black text-xs uppercase tracking-[0.2em] flex items-center justify-center gap-4 hover:bg-emerald-600 transition-all shadow-xl active:scale-95 group"
+              className="w-full py-3.5 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-2xl font-bold text-xs tracking-wide flex items-center justify-center gap-3 hover:from-blue-700 hover:to-sky-600 transition-all shadow-lg shadow-blue-200 active:scale-95 group"
             >
-              <LogIn size={20} className="group-hover:translate-x-1 transition-transform" />
+              <LogIn size={18} className="group-hover:translate-x-0.5 transition-transform" />
               Se connecter avec Google
             </button>
           </div>
           
-          <p className="mt-12 text-[9px] font-bold text-slate-300 uppercase tracking-widest">Version 2.5 • Édition Professionnelle</p>
+          <p className="mt-7 text-[11px] font-medium text-slate-400">Ka'nine & Patounes</p>
         </div>
       </div>
     );
@@ -843,20 +849,20 @@ const App: React.FC = () => {
       {activeTab === 'products' && <ProductSales syncTrigger={realtimeSyncTrigger} onPrintProductInvoice={handlePrintProductInvoice} />}
       {activeTab === 'invoices' && renderInvoicesList()}
       {activeTab === 'audit' && (
-        <div className="max-w-4xl mx-auto bg-white p-6 rounded-2xl border border-slate-100 shadow-sm">
-           <h2 className="text-sm font-black mb-8 text-slate-800 uppercase flex items-center gap-2">
-             <HistoryIcon className="text-indigo-600" size={18} /> Activité
+        <div className="max-w-4xl mx-auto bg-white p-4 rounded-xl border border-slate-100 shadow-sm">
+           <h2 className="text-xs font-black mb-4 text-slate-800 uppercase flex items-center gap-2">
+             <HistoryIcon className="text-blue-600" size={16} /> Activité
            </h2>
-           <div className="space-y-2">
+           <div className="space-y-1.5">
               {db.getAuditLog().map((entry: any) => (
-                <div key={entry.id} className="flex gap-4 p-3 bg-slate-50/50 rounded-xl border border-slate-100">
-                   <div className="w-20 shrink-0 border-r border-slate-200">
-                      <p className="text-[8px] font-black text-slate-400 uppercase">{new Date(entry.timestamp).toLocaleDateString()}</p>
+                <div key={entry.id} className="flex gap-3 p-2.5 bg-slate-50/50 rounded-xl border border-slate-100">
+                   <div className="w-18 shrink-0 border-r border-slate-200 pr-2">
+                      <p className="text-[9px] font-bold text-slate-400 uppercase">{new Date(entry.timestamp).toLocaleDateString()}</p>
                       <p className="text-[10px] font-bold text-slate-600">{new Date(entry.timestamp).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</p>
                    </div>
-                   <div className="flex-1">
-                      <span className="text-[8px] font-black text-indigo-600 bg-indigo-50 px-1.5 py-0.5 rounded uppercase mb-1 inline-block">{entry.action}</span>
-                      <p className="text-xs font-bold text-slate-800 leading-tight">{entry.details}</p>
+                   <div className="flex-1 min-w-0">
+                      <span className="text-[8px] font-black text-blue-600 bg-blue-50 px-1.5 py-0.5 rounded uppercase mb-0.5 inline-block">{entry.action}</span>
+                      <p className="text-xs font-semibold text-slate-800 leading-tight">{entry.details}</p>
                    </div>
                    <div className="flex gap-1 self-start">
                     {entry.undoData && (
@@ -893,9 +899,9 @@ const App: React.FC = () => {
                           }
                         });
                       }}
-                      className="p-1.5 text-red-400 hover:bg-red-50 rounded-lg transition-all"
+                      className="p-1 text-red-400 hover:bg-red-50 rounded-lg transition-all"
                     >
-                      <Trash2 size={14} />
+                      <Trash2 size={13} />
                     </button>
                    </div>
                 </div>
@@ -904,28 +910,28 @@ const App: React.FC = () => {
         </div>
       )}
       {activeTab === 'config' && (
-        <div className="space-y-6">
-           <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm flex flex-col md:flex-row items-center gap-8">
-              <div className="w-32 h-32 bg-slate-50 rounded-2xl border-2 border-white shadow-inner flex items-center justify-center overflow-hidden relative group">
-                 {config.logo ? <img src={config.logo} className="w-full h-full object-contain p-2" /> : <ImageIcon size={32} className="text-slate-200" />}
+        <div className="space-y-4">
+           <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col sm:flex-row items-center gap-5">
+              <div className="w-20 h-20 bg-slate-50 rounded-xl border border-slate-200 shadow-inner flex items-center justify-center overflow-hidden relative group shrink-0">
+                 {config.logo ? <img src={config.logo} className="w-full h-full object-contain p-1.5" /> : <ImageIcon size={24} className="text-slate-300" />}
                  <label className="absolute inset-0 bg-black/50 flex items-center justify-center opacity-0 group-hover:opacity-100 cursor-pointer transition-opacity">
-                    <Camera className="text-white" size={20} />
+                    <Camera className="text-white" size={16} />
                     <input type="file" ref={logoInputRef} onChange={handleLogoUpload} className="hidden" accept="image/*" />
                  </label>
               </div>
-              <div className="flex-1 space-y-2">
-                 <h3 className="text-sm font-black text-slate-900 uppercase">Logo Entreprise</h3>
-                 <p className="text-xs text-slate-500 font-medium">Affiché sur les factures PDF.</p>
-                 <button onClick={() => logoInputRef.current?.click()} className="px-4 py-2 bg-indigo-600 text-white rounded-lg text-xs font-black uppercase tracking-widest hover:bg-indigo-700 transition-all">Parcourir</button>
+              <div className="flex-1 space-y-1.5 text-center sm:text-left">
+                 <h3 className="text-xs font-black text-slate-900 uppercase">Logo Entreprise</h3>
+                 <p className="text-[11px] text-slate-500 font-medium">Affiché sur les factures PDF.</p>
+                 <button onClick={() => logoInputRef.current?.click()} className="px-3.5 py-1.5 bg-blue-600 text-white rounded-lg text-[11px] font-bold uppercase tracking-wider hover:bg-blue-700 transition-all">Parcourir</button>
               </div>
            </div>
 
-           <div className="bg-white p-6 rounded-2xl border border-slate-100 shadow-sm space-y-4">
-              <h3 className="text-sm font-black text-slate-900 uppercase flex items-center gap-2">
-                <FileText className="text-indigo-600" size={18} /> Coordonnées
+           <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm space-y-3">
+              <h3 className="text-xs font-black text-slate-900 uppercase flex items-center gap-2">
+                <FileText className="text-blue-600" size={16} /> Coordonnées
               </h3>
               
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                 <ConfigInput label="Entreprise" value={config.companyName} onChange={(v: string) => updateBaseConfig('companyName', v)} placeholder="Ex: Ka'nine" />
                 <ConfigInput label="Gérant" value={config.ownerName} onChange={(v: string) => updateBaseConfig('ownerName', v)} placeholder="Ex: Karine D." />
                 <ConfigInput label="SIRET" value={config.siret} onChange={(v: string) => updateBaseConfig('siret', v)} placeholder="123 456 789 00012" />
@@ -935,7 +941,7 @@ const App: React.FC = () => {
               </div>
            </div>
 
-           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 mb-10">
+           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3.5 mb-6">
               <EditableConfigSection title="Espèces" items={config.species || []} onUpdate={(items: string[]) => { db.updateConfigItems('species', items); setConfig(db.getConfig()); }} />
               <EditableBreedsSection breeds={config.breeds || {}} species={config.species || []} onUpdate={(breeds: Record<string, string[]>) => { const newConfig = {...config, breeds}; db.saveConfig(newConfig); setConfig(newConfig); }} />
               <EditableConfigSection title="Poils" items={config.coatTypes || []} onUpdate={(items: string[]) => { db.updateConfigItems('coatTypes', items); setConfig(db.getConfig()); }} />
@@ -946,37 +952,37 @@ const App: React.FC = () => {
         </div>
       )}
       {activeTab === 'backup' && (
-        <div className="max-w-4xl mx-auto space-y-4 pb-10">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center text-center">
-              <div className="w-12 h-12 bg-emerald-50 text-emerald-600 rounded-lg flex items-center justify-center mb-4 border border-emerald-100">
-                <Download size={20} />
+        <div className="max-w-4xl mx-auto space-y-3.5 pb-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col items-center text-center">
+              <div className="w-10 h-10 bg-blue-50 text-blue-600 rounded-lg flex items-center justify-center mb-2.5 border border-blue-100">
+                <Download size={18} />
               </div>
-              <h3 className="text-xs font-black text-slate-800 uppercase tracking-widest mb-1">Export Manuel</h3>
-              <p className="text-slate-500 mb-6 text-[10px] font-bold uppercase tracking-tight">Archive JSON locale sécurisée.</p>
-              <div className="w-full space-y-2">
-                <button onClick={handleExportAll} className="w-full py-2.5 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-black transition-all flex items-center justify-center gap-2">
-                  <Save size={14} /> Pack complet (3 JSON)
+              <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider mb-0.5">Export Manuel</h3>
+              <p className="text-slate-500 mb-3.5 text-[10px] font-bold uppercase tracking-tight">Archive JSON locale sécurisée.</p>
+              <div className="w-full space-y-1.5">
+                <button onClick={handleExportAll} className="w-full py-2 bg-slate-900 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-black transition-all flex items-center justify-center gap-2">
+                  <Save size={13} /> Pack complet (3 JSON)
                 </button>
                 <div className="h-px bg-slate-100 w-full my-1"></div>
-                <button onClick={() => handleFileExport('full')} className="w-full py-2.5 bg-emerald-600 text-white rounded-lg text-[10px] font-black uppercase tracking-widest hover:bg-emerald-700 transition-all flex items-center justify-center gap-2">
-                  <Save size={14} /> Full DB (.json)
+                <button onClick={() => handleFileExport('full')} className="w-full py-2 bg-blue-600 text-white rounded-lg text-[10px] font-black uppercase tracking-wider hover:bg-blue-700 transition-all flex items-center justify-center gap-2">
+                  <Save size={13} /> Full DB (.json)
                 </button>
-                <div className="grid grid-cols-2 gap-2">
-                  <button onClick={() => handleFileExport('partial')} className="w-full py-2 bg-white text-emerald-600 border border-emerald-100 rounded-lg text-[9px] font-black uppercase hover:bg-emerald-50 transition-all flex items-center justify-center gap-2">
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button onClick={() => handleFileExport('partial')} className="w-full py-1.5 bg-white text-blue-600 border border-blue-100 rounded-lg text-[9px] font-black uppercase hover:bg-blue-50 transition-all flex items-center justify-center gap-2">
                     Données
                   </button>
-                  <button onClick={() => handleFileExport('photos')} className="w-full py-2 bg-white text-blue-600 border border-blue-100 rounded-lg text-[9px] font-black uppercase hover:bg-blue-50 transition-all flex items-center justify-center gap-2">
+                  <button onClick={() => handleFileExport('photos')} className="w-full py-1.5 bg-white text-blue-600 border border-blue-100 rounded-lg text-[9px] font-black uppercase hover:bg-blue-50 transition-all flex items-center justify-center gap-2">
                     Photos
                   </button>
                 </div>
               </div>
             </div>
 
-            <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-indigo-50 text-indigo-600 rounded-lg border border-indigo-100"><Upload size={18} /></div>
-                <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Importation</h3>
+            <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100"><Upload size={16} /></div>
+                <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">Importation</h3>
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed tracking-tight">Restaurez vos données depuis un fichier JSON précédemment exporté.</p>
               <input type="file" ref={fileInputRef} onChange={handleFileImport} accept=".json,application/json,text/plain" className="hidden" />
@@ -986,21 +992,21 @@ const App: React.FC = () => {
                   onDragOver={handleDragOver}
                   onDrop={handleFileImport}
                   disabled={isImporting}
-                  className={`w-full py-4 rounded-xl font-black text-[10px] uppercase tracking-[0.2em] flex items-center justify-center gap-3 border-2 border-dashed transition-all ${isImporting ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-indigo-50 border-indigo-200 text-indigo-700 hover:bg-indigo-100 focus:outline-none focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2'}`}
+                  className={`w-full py-3 rounded-xl font-black text-[10px] uppercase tracking-wider flex items-center justify-center gap-2 border-2 border-dashed transition-all ${isImporting ? 'bg-slate-50 border-slate-200 text-slate-400 cursor-not-allowed' : 'bg-blue-50 border-blue-200 text-blue-700 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2'}`}
                   title="Cliquez pour sélectionner un fichier ou glissez-déposez le fichier ici"
                 >
-                  {isImporting ? "CHRGMENT..." : "DÉPOSER OU CLIQUER ICI POUR JSON"}
+                  {isImporting ? "CHARGEMENT..." : "DÉPOSER OU CLIQUER ICI POUR JSON"}
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm space-y-6">
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-50 pb-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-blue-50 text-blue-600 rounded-lg border border-blue-100"><Clock size={18} /></div>
+          <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm space-y-4">
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 border-b border-slate-50 pb-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100"><Clock size={16} /></div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Backup Automatique</h3>
+                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">Backup Automatique</h3>
                   <p className="text-slate-500 text-[9px] font-bold uppercase tracking-tight">Background sync vers dossier local.</p>
                 </div>
               </div>
@@ -1008,7 +1014,7 @@ const App: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => updateAutoBackup({ enabled: !autoBackupConfig.enabled })}
-                  className={`py-2 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${autoBackupConfig.enabled ? 'bg-emerald-50 text-emerald-600 border border-emerald-100' : 'bg-slate-50 text-slate-500 border border-slate-200'}`}
+                  className={`py-1.5 px-3 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${autoBackupConfig.enabled ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-slate-50 text-slate-500 border border-slate-200'}`}
                 >
                   {autoBackupConfig.enabled ? 'ACTIF' : 'INACTIF'}
                 </button>
@@ -1021,30 +1027,30 @@ const App: React.FC = () => {
                     const action = (hasAutoBackupDir && autoBackupPermission !== 'granted') ? 'request' : 'pick';
                     handleAutoBackupSetup(action);
                   }}
-                  className={`py-2 px-4 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all ${hasAutoBackupDir && autoBackupPermission === 'granted' ? 'bg-indigo-50 text-indigo-600 border border-indigo-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}
+                  className={`py-1.5 px-3 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all ${hasAutoBackupDir && autoBackupPermission === 'granted' ? 'bg-blue-50 text-blue-600 border border-blue-200' : 'bg-amber-50 text-amber-600 border border-amber-200'}`}
                 >
                    {hasAutoBackupDir && autoBackupPermission === 'granted' ? "DOSSIER OK" : "SÉLEC. DOSSIER"}
                 </button>
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-2.5">
               {[
-                { id: 'partial', label: 'Données', icon: <FileText size={14} /> },
-                { id: 'full', label: 'Full DB', icon: <Save size={14} /> },
-                { id: 'photos', label: 'Photos', icon: <ImageIcon size={14} /> }
+                { id: 'partial', label: 'Données', icon: <FileText size={13} /> },
+                { id: 'full', label: 'Full DB', icon: <Save size={13} /> },
+                { id: 'photos', label: 'Photos', icon: <ImageIcon size={13} /> }
               ].map((type) => {
                 const schedule = autoBackupConfig.schedules?.[type.id as BackupType] || { enabled: false, frequency: 24 };
                 return (
-                  <div key={type.id} className={`p-3 rounded-lg border transition-all ${schedule.enabled ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50/50 border-slate-100 opacity-60'}`}>
-                    <div className="flex items-center justify-between mb-2">
-                       <span className={`p-1.5 rounded ${schedule.enabled ? 'bg-indigo-50 text-indigo-600' : 'bg-slate-200 text-slate-400'}`}>
+                  <div key={type.id} className={`p-2.5 rounded-lg border transition-all ${schedule.enabled ? 'bg-white border-slate-200 shadow-sm' : 'bg-slate-50/50 border-slate-100 opacity-60'}`}>
+                    <div className="flex items-center justify-between mb-1.5">
+                       <span className={`p-1 rounded ${schedule.enabled ? 'bg-blue-50 text-blue-600' : 'bg-slate-200 text-slate-400'}`}>
                           {type.icon}
                        </span>
                        <button
                           onClick={() => updateSchedule(type.id as BackupType, { enabled: !schedule.enabled })}
                           disabled={!autoBackupConfig.enabled}
-                          className={`px-2 py-0.5 rounded text-[7px] font-black uppercase tracking-widest transition-all ${schedule.enabled ? 'bg-indigo-600 text-white' : 'bg-slate-200 text-slate-500'}`}
+                          className={`px-2 py-0.5 rounded text-[8px] font-black uppercase tracking-wider transition-all ${schedule.enabled ? 'bg-blue-600 text-white' : 'bg-slate-200 text-slate-500'}`}
                         >
                           {schedule.enabled ? 'ON' : 'OFF'}
                        </button>
@@ -1054,7 +1060,7 @@ const App: React.FC = () => {
                       value={schedule.frequency}
                       onChange={(e) => updateSchedule(type.id as BackupType, { frequency: parseInt(e.target.value) })}
                       disabled={!autoBackupConfig.enabled || !schedule.enabled}
-                      className="w-full p-1 bg-slate-50 border border-slate-100 rounded text-[8px] font-black uppercase outline-none mb-2"
+                      className="w-full p-1 bg-slate-50 border border-slate-100 rounded text-[9px] font-bold uppercase outline-none mb-1.5"
                     >
                       <option value={4}>4h</option>
                       <option value={12}>12h</option>
@@ -1062,7 +1068,7 @@ const App: React.FC = () => {
                       <option value={168}>1 sem</option>
                     </select>
                     {schedule.enabled && schedule.lastBackup && (
-                      <p className="text-[7px] text-slate-400 font-bold uppercase tabular-nums">
+                      <p className="text-[8px] text-slate-400 font-bold uppercase tabular-nums">
                         Sync: {new Date(schedule.lastBackup).toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}
                       </p>
                     )}
@@ -1072,15 +1078,15 @@ const App: React.FC = () => {
             </div>
             
             {autoBackupConfig.enabled && (!hasAutoBackupDir || autoBackupPermission !== 'granted') && (
-              <p className="text-amber-600 text-[9px] mt-2 font-black uppercase flex items-center gap-2 italic">
+              <p className="text-amber-600 text-[9px] mt-1.5 font-black uppercase flex items-center gap-2 italic">
                 <AlertCircle size={10} /> Configuration du dossier requise
               </p>
             )}
 
             {window.self !== window.top && (
-              <div className="p-3 bg-blue-50/50 border border-blue-100 rounded-lg flex items-start gap-2">
+              <div className="p-2.5 bg-blue-50/50 border border-blue-100 rounded-lg flex items-start gap-2">
                 <ShieldCheck className="text-blue-600 shrink-0" size={14} />
-                <p className="text-blue-800 text-[8px] font-bold uppercase leading-normal tracking-tight">
+                <p className="text-blue-800 text-[9px] font-bold uppercase leading-normal tracking-tight">
                   <span className="font-black text-blue-900 border-b border-blue-200 mr-1">NOTE TECHNIQUE :</span> 
                   Activez via 'Ouvrir en nouvel onglet' pour autoriser l'accès aux dossiers locaux navigateur.
                 </p>
@@ -1088,18 +1094,18 @@ const App: React.FC = () => {
             )}
           </div>
 
-          <div className="bg-white p-6 rounded-xl border border-slate-100 shadow-sm flex flex-col space-y-4">
-              <div className="flex items-center gap-3">
-                <div className="p-2.5 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100"><Cloud size={18} /></div>
+          <div className="bg-white p-4 rounded-xl border border-slate-100 shadow-sm flex flex-col space-y-3">
+              <div className="flex items-center gap-2.5">
+                <div className="p-2 bg-blue-50 text-blue-600 rounded-lg border border-blue-100"><Cloud size={16} /></div>
                 <div>
-                  <h3 className="text-sm font-black text-slate-800 uppercase tracking-widest">Firebase Cloud</h3>
+                  <h3 className="text-xs font-black text-slate-800 uppercase tracking-wider">Firebase Cloud</h3>
                   <p className="text-slate-500 text-[9px] font-bold uppercase tracking-tight">Synchronisation réseau</p>
                 </div>
               </div>
               <p className="text-slate-500 text-[10px] font-bold uppercase leading-relaxed tracking-tight">Synchronisez vos données avec Firebase si vous utilisez l'application sur un nouvel appareil ou domaine.</p>
               
               {user && (
-                <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 flex flex-col gap-2.5">
+                <div className="bg-slate-50 p-3 rounded-xl border border-slate-100 flex flex-col gap-2">
                   <div className="flex items-center justify-between text-[10px] text-slate-500 font-bold uppercase tracking-wider">
                      <span>Utilisateur Connecté :</span>
                      <span className="text-slate-800 font-black italic">{user.email}</span>
@@ -1114,20 +1120,20 @@ const App: React.FC = () => {
                   </div>
                   <button 
                     onClick={handleSignOut}
-                    className="mt-2 w-full py-2 bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-lg text-[9px] font-black uppercase tracking-widest transition-all flex items-center justify-center gap-2"
+                    className="mt-1 w-full py-1.5 bg-red-50 text-red-600 hover:bg-red-100 border border-red-100 rounded-lg text-[9px] font-black uppercase tracking-wider transition-all flex items-center justify-center gap-2"
                   >
                     <LogOut size={12} strokeWidth={2.5} /> Se Déconnecter
                   </button>
                 </div>
               )}
 
-              <div className="flex flex-col md:flex-row gap-2 w-full mt-4">
+              <div className="flex flex-col md:flex-row gap-2 w-full mt-2">
                 <button 
                   onClick={handleMigration}
                   disabled={isMigrating}
-                  className={`flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${isMigrating ? 'bg-slate-100 text-slate-400' : 'bg-emerald-600 text-white hover:bg-emerald-700'}`}
+                  className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${isMigrating ? 'bg-slate-100 text-slate-400' : 'bg-blue-600 text-white hover:bg-blue-700'}`}
                 >
-                  <Upload size={14} /> Envoyer vers Cloud
+                  <Upload size={13} /> Envoyer vers Cloud
                 </button>
                 <button 
                   onClick={async () => {
@@ -1145,25 +1151,25 @@ const App: React.FC = () => {
                     }
                   }}
                   disabled={isMigrating}
-                  className={`flex-1 py-3 rounded-lg text-[10px] font-black uppercase tracking-widest flex items-center justify-center gap-2 transition-all ${isMigrating ? 'bg-slate-100 text-slate-400' : 'bg-indigo-600 text-white hover:bg-indigo-700'}`}
+                  className={`flex-1 py-2.5 rounded-lg text-[10px] font-black uppercase tracking-wider flex items-center justify-center gap-2 transition-all ${isMigrating ? 'bg-slate-100 text-slate-400' : 'bg-slate-900 text-white hover:bg-blue-900'}`}
                 >
-                  <Download size={14} /> Récupérer du Cloud
+                  <Download size={13} /> Récupérer du Cloud
                 </button>
               </div>
           </div>
 
           {(importLogs.length > 0 || isImporting) && (
-            <div className="bg-[#0f172a] rounded-xl p-4 shadow-xl border border-slate-800">
-               <div className="flex items-center justify-between mb-3 border-b border-slate-800 pb-2">
-                  <div className="flex items-center gap-2 text-indigo-400">
+            <div className="bg-[#0f172a] rounded-xl p-3.5 shadow-xl border border-slate-800">
+               <div className="flex items-center justify-between mb-2 border-b border-slate-800 pb-1.5">
+                  <div className="flex items-center gap-2 text-blue-400">
                     <Terminal size={12} />
                     <span className="font-black text-[8px] uppercase tracking-[0.2em]">Live Monitoring</span>
                   </div>
-                  <div className={`w-1.5 h-1.5 rounded-full ${isImporting ? 'bg-amber-500 animate-pulse' : 'bg-emerald-500'}`}></div>
+                  <div className={`w-1.5 h-1.5 rounded-full ${isImporting ? 'bg-amber-500 animate-pulse' : 'bg-blue-500'}`}></div>
                </div>
-               <div className="space-y-1 font-mono text-[9px] h-32 overflow-y-auto pr-2 custom-scrollbar tabular-nums">
+               <div className="space-y-1 font-mono text-[9px] h-28 overflow-y-auto pr-2 custom-scrollbar tabular-nums">
                   {importLogs.map((log, idx) => (
-                    <div key={idx} className={`flex gap-2 ${log.includes('ERREUR') ? 'text-red-400 bg-red-400/5 p-1 rounded' : log.includes('SYNK') ? 'text-emerald-400' : 'text-slate-400'}`}>
+                    <div key={idx} className={`flex gap-2 ${log.includes('ERREUR') ? 'text-red-400 bg-red-400/5 p-1 rounded' : log.includes('SYNK') ? 'text-blue-400' : 'text-slate-400'}`}>
                        <span className="opacity-30">{idx + 1}</span>
                        <span>{log}</span>
                     </div>
@@ -1210,13 +1216,13 @@ const App: React.FC = () => {
 };
 
 const ConfigInput = ({ label, value, onChange, placeholder }: any) => (
-  <div className="space-y-1.5">
-    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-widest italic">{label}</label>
+  <div className="space-y-1">
+    <label className="block text-[9px] font-bold text-slate-400 uppercase tracking-wider italic">{label}</label>
     <input 
       type="text" 
       value={value || ''} 
       onChange={e => onChange(e.target.value)} 
-      className="w-full px-4 py-3 bg-slate-50 border border-slate-100 rounded-xl text-xs font-bold focus:ring-1 focus:ring-emerald-500 focus:bg-white focus:border-emerald-200 outline-none transition-all placeholder:text-slate-200" 
+      className="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold focus:ring-1 focus:ring-blue-500 focus:bg-white focus:border-blue-300 outline-none transition-all placeholder:text-slate-300" 
       placeholder={placeholder} 
     />
   </div>
@@ -1235,11 +1241,11 @@ const EditableConfigSection = ({ title, items, onUpdate }: any) => {
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[350px]">
-      <h3 className="font-serif text-lg text-slate-900 italic mb-4 border-b border-slate-50 pb-3">{title}</h3>
-      <div className="flex-1 space-y-1.5 mb-5 overflow-y-auto pr-1 custom-scrollbar">
+    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[250px] max-h-[320px]">
+      <h3 className="font-serif text-base text-slate-900 italic mb-2.5 border-b border-slate-100 pb-2">{title}</h3>
+      <div className="flex-1 space-y-1 mb-3 overflow-y-auto pr-1 custom-scrollbar">
         {items.map((it: string, idx: number) => (
-          <div key={`${it}-${idx}`} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl group hover:bg-white border border-transparent hover:border-emerald-100 transition-all">
+          <div key={`${it}-${idx}`} className="flex justify-between items-center px-2.5 py-1.5 bg-slate-50 rounded-lg group hover:bg-white border border-transparent hover:border-blue-100 transition-all">
             {editingIndex === idx ? (
               <input 
                 autoFocus 
@@ -1247,26 +1253,26 @@ const EditableConfigSection = ({ title, items, onUpdate }: any) => {
                 onChange={e => setEditVal(e.target.value)} 
                 onBlur={() => handleEditSave(idx)}
                 onKeyPress={e => e.key === 'Enter' && handleEditSave(idx)}
-                className="flex-1 bg-white px-2 py-1 rounded border border-emerald-100 outline-none text-[11px] font-bold text-slate-800"
+                className="flex-1 bg-white px-2 py-0.5 rounded border border-blue-200 outline-none text-[11px] font-bold text-slate-800"
               />
             ) : (
-              <div className="flex-1 flex items-center justify-between min-w-0 pr-2">
-                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">{it}</span>
+              <div className="flex-1 flex items-center justify-between min-w-0 pr-1.5">
+                <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tight truncate">{it}</span>
                 <button 
                   onClick={() => { setEditingIndex(idx); setEditVal(it); }}
-                  className="p-1.5 text-slate-200 hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all"
+                  className="p-1 text-slate-300 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all"
                 >
                   <Edit size={12} />
                 </button>
               </div>
             )}
-            <button onClick={() => onUpdate(items.filter((_: string, i: number) => i !== idx))} className="text-slate-100 hover:text-red-400 p-1.5 transition-colors"><Trash2 size={12}/></button>
+            <button onClick={() => onUpdate(items.filter((_: string, i: number) => i !== idx))} className="text-slate-300 hover:text-red-500 p-1 transition-colors"><Trash2 size={12}/></button>
           </div>
         ))}
       </div>
-      <div className="flex gap-2 pt-4 border-t border-slate-50">
-        <input type="text" value={val} onChange={e => setVal(e.target.value)} onKeyPress={e => e.key === 'Enter' && val && (onUpdate([...items, val]), setVal(''))} className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold uppercase outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-all" placeholder="AJOUTER..." />
-        <button onClick={() => { if(val) onUpdate([...items, val]); setVal(''); }} className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-emerald-600 transition-all cursor-pointer">+</button>
+      <div className="flex gap-1.5 pt-2.5 border-t border-slate-100">
+        <input type="text" value={val} onChange={e => setVal(e.target.value)} onKeyPress={e => e.key === 'Enter' && val && (onUpdate([...items, val]), setVal(''))} className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-semibold uppercase outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Ajouter..." />
+        <button onClick={() => { if(val) onUpdate([...items, val]); setVal(''); }} className="w-8 h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all cursor-pointer shrink-0">+</button>
       </div>
     </div>
   );
@@ -1294,14 +1300,14 @@ const EditableBreedsSection = ({ breeds, species, onUpdate }: any) => {
   };
 
   return (
-    <div className="bg-white p-5 rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[350px]">
-      <h3 className="font-serif text-lg text-slate-900 italic mb-4 border-b border-slate-50 pb-3">Races par espèce</h3>
-      <select value={selectedSpecies} onChange={e => setSelectedSpecies(e.target.value)} className="w-full p-3 mb-4 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold uppercase text-slate-800 outline-none focus:ring-1 focus:ring-emerald-500 transition-all">
+    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[250px] max-h-[320px]">
+      <h3 className="font-serif text-base text-slate-900 italic mb-2.5 border-b border-slate-100 pb-2">Races par espèce</h3>
+      <select value={selectedSpecies} onChange={e => setSelectedSpecies(e.target.value)} className="w-full px-2.5 py-1.5 mb-2.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-bold uppercase text-slate-800 outline-none focus:ring-1 focus:ring-blue-500 transition-all">
         {species.map((s: string) => <option key={s} value={s}>{s}</option>)}
       </select>
-      <div className="flex-1 space-y-1.5 mb-5 overflow-y-auto pr-1 custom-scrollbar">
+      <div className="flex-1 space-y-1 mb-3 overflow-y-auto pr-1 custom-scrollbar">
         {(breeds[selectedSpecies] || []).map((b: string, idx: number) => (
-          <div key={`${b}-${idx}`} className="flex justify-between items-center p-3 bg-slate-50 rounded-xl group hover:bg-white border border-transparent hover:border-emerald-100 transition-all">
+          <div key={`${b}-${idx}`} className="flex justify-between items-center px-2.5 py-1.5 bg-slate-50 rounded-lg group hover:bg-white border border-transparent hover:border-blue-100 transition-all">
             {editingIndex === idx ? (
               <input 
                 autoFocus 
@@ -1309,26 +1315,26 @@ const EditableBreedsSection = ({ breeds, species, onUpdate }: any) => {
                 onChange={e => setEditVal(e.target.value)} 
                 onBlur={() => handleEditSave(idx)}
                 onKeyPress={e => e.key === 'Enter' && handleEditSave(idx)}
-                className="flex-1 bg-white px-2 py-1 rounded border border-emerald-100 outline-none text-[11px] font-bold text-slate-800"
+                className="flex-1 bg-white px-2 py-0.5 rounded border border-blue-200 outline-none text-[11px] font-bold text-slate-800"
               />
             ) : (
-              <div className="flex-1 flex items-center justify-between min-w-0 pr-2">
-                <span className="text-[11px] font-bold text-slate-700 uppercase tracking-tight truncate">{b}</span>
+              <div className="flex-1 flex items-center justify-between min-w-0 pr-1.5">
+                <span className="text-[11px] font-semibold text-slate-700 uppercase tracking-tight truncate">{b}</span>
                 <button 
                   onClick={() => { setEditingIndex(idx); setEditVal(b); }}
-                  className="p-1.5 text-slate-200 hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all"
+                  className="p-1 text-slate-300 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all"
                 >
                   <Edit size={12} />
                 </button>
               </div>
             )}
-            <button onClick={() => onUpdate({ ...breeds, [selectedSpecies]: (breeds[selectedSpecies] || []).filter((_: string, i: number) => i !== idx) })} className="text-slate-100 hover:text-red-400 p-1.5 transition-colors"><Trash2 size={12}/></button>
+            <button onClick={() => onUpdate({ ...breeds, [selectedSpecies]: (breeds[selectedSpecies] || []).filter((_: string, i: number) => i !== idx) })} className="text-slate-300 hover:text-red-500 p-1 transition-colors"><Trash2 size={12}/></button>
           </div>
         ))}
       </div>
-      <div className="flex gap-2 pt-4 border-t border-slate-50">
-        <input type="text" value={newBreed} onChange={e => setNewBreed(e.target.value)} onKeyPress={e => e.key === 'Enter' && newBreed && handleAdd()} className="flex-1 px-4 py-2.5 bg-slate-50 border border-slate-100 rounded-xl text-[10px] font-bold uppercase outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-all" placeholder="RACE..." />
-        <button onClick={handleAdd} className="w-10 h-10 bg-slate-900 text-white rounded-xl flex items-center justify-center shadow-lg hover:bg-emerald-600 transition-all cursor-pointer">+</button>
+      <div className="flex gap-1.5 pt-2.5 border-t border-slate-100">
+        <input type="text" value={newBreed} onChange={e => setNewBreed(e.target.value)} onKeyPress={e => e.key === 'Enter' && newBreed && handleAdd()} className="flex-1 px-3 py-1.5 bg-slate-50 border border-slate-200 rounded-xl text-[11px] font-semibold uppercase outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Race..." />
+        <button onClick={handleAdd} className="w-8 h-8 bg-slate-900 text-white rounded-xl flex items-center justify-center hover:bg-blue-600 transition-all cursor-pointer shrink-0">+</button>
       </div>
     </div>
   );
@@ -1361,39 +1367,39 @@ const EditableProductsSection = ({ products, onUpdate }: any) => {
   };
 
   return (
-    <div className="bg-white p-6 rounded-3xl border border-slate-100 shadow-sm flex flex-col min-h-[400px] col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
-      <h3 className="font-serif text-2xl text-slate-900 italic mb-6 border-b border-slate-50 pb-4">Boutique & Articles</h3>
-      <div className="flex-1 space-y-2 mb-6 overflow-y-auto pr-2 custom-scrollbar">
+    <div className="bg-white p-4 rounded-2xl border border-slate-100 shadow-sm flex flex-col min-h-[260px] col-span-1 md:col-span-2 lg:col-span-3 xl:col-span-4">
+      <h3 className="font-serif text-lg text-slate-900 italic mb-3 border-b border-slate-100 pb-2">Boutique & Articles</h3>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 mb-3 overflow-y-auto max-h-[260px] pr-1 custom-scrollbar">
         {products.map((p: any) => (
-          <div key={p.id} className="flex justify-between items-center p-4 bg-slate-50 rounded-2xl group hover:bg-white border border-transparent hover:border-emerald-100 transition-all shadow-sm">
+          <div key={p.id} className="flex justify-between items-center px-3 py-2 bg-slate-50 rounded-xl group hover:bg-white border border-transparent hover:border-blue-100 transition-all">
             {editingId === p.id ? (
-              <div className="flex gap-3 flex-1">
-                <input value={editName} onChange={e => setEditName(e.target.value)} className="flex-1 bg-white px-4 py-2 rounded-xl border border-emerald-200 outline-none text-[11px] font-bold text-slate-800" />
-                <input value={editPrice} onChange={e => setEditPrice(e.target.value)} className="w-24 bg-white px-4 py-2 rounded-xl border border-emerald-200 outline-none text-[11px] font-bold text-slate-800" />
-                <button onClick={() => handleEditSave(p.id)} className="p-2 text-emerald-600 bg-emerald-50 rounded-xl hover:bg-emerald-100 transition-colors"><CheckCircle2 size={18}/></button>
+              <div className="flex gap-2 flex-1">
+                <input value={editName} onChange={e => setEditName(e.target.value)} className="flex-1 bg-white px-2.5 py-1 rounded-lg border border-blue-200 outline-none text-xs font-bold text-slate-800" />
+                <input value={editPrice} onChange={e => setEditPrice(e.target.value)} className="w-16 bg-white px-2 py-1 rounded-lg border border-blue-200 outline-none text-xs font-bold text-slate-800" />
+                <button onClick={() => handleEditSave(p.id)} className="p-1.5 text-blue-600 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"><CheckCircle2 size={15}/></button>
               </div>
             ) : (
-              <div className="flex-1 flex items-center justify-between min-w-0 pr-6">
-                <div className="flex flex-col">
-                  <span className="font-serif text-lg text-slate-800 italic leading-tight">{p.name}</span>
-                  <span className="text-[11px] text-emerald-600 font-bold tabular-nums mt-1">{p.price.toFixed(2)} €</span>
+              <div className="flex-1 flex items-center justify-between min-w-0 pr-2">
+                <div className="min-w-0">
+                  <span className="font-serif text-sm text-slate-800 italic leading-tight block truncate">{p.name}</span>
+                  <span className="text-[11px] text-blue-600 font-bold tabular-nums">{p.price.toFixed(2)} €</span>
                 </div>
                 <button 
                   onClick={() => { setEditingId(p.id); setEditName(p.name); setEditPrice(p.price.toString()); }}
-                  className="p-2 text-slate-200 hover:text-emerald-600 opacity-0 group-hover:opacity-100 transition-all bg-white rounded-xl shadow-sm border border-slate-50"
+                  className="p-1 text-slate-300 hover:text-blue-600 opacity-0 group-hover:opacity-100 transition-all"
                 >
-                  <Edit size={14} />
+                  <Edit size={13} />
                 </button>
               </div>
             )}
-            <button onClick={() => onUpdate(products.filter((i: any) => i.id !== p.id))} className="text-slate-200 hover:text-red-400 p-2 transition-colors"><Trash2 size={16}/></button>
+            <button onClick={() => onUpdate(products.filter((i: any) => i.id !== p.id))} className="text-slate-300 hover:text-red-500 p-1 transition-colors"><Trash2 size={13}/></button>
           </div>
         ))}
       </div>
-      <div className="flex gap-3 pt-6 border-t border-slate-100">
-        <input type="text" value={name} onChange={e => setName(e.target.value)} className="flex-1 px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-bold uppercase outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-all" placeholder="DÉSIGNATION DE L'ARTICLE..." />
-        <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="w-32 px-5 py-4 bg-slate-50 border border-slate-100 rounded-2xl text-[11px] font-bold outline-none focus:bg-white focus:ring-1 focus:ring-emerald-500 transition-all" placeholder="PRIX €" />
-        <button onClick={handleAdd} className="px-8 bg-slate-900 text-white rounded-2xl font-bold uppercase text-[10px] tracking-widest shadow-xl hover:bg-emerald-700 transition-all active:scale-95">Ajouter au catalogue</button>
+      <div className="flex flex-wrap sm:flex-nowrap gap-2 pt-3 border-t border-slate-100">
+        <input type="text" value={name} onChange={e => setName(e.target.value)} className="flex-1 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold uppercase outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Désignation de l'article..." />
+        <input type="number" step="0.01" value={price} onChange={e => setPrice(e.target.value)} className="w-24 px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs font-semibold outline-none focus:bg-white focus:ring-1 focus:ring-blue-500 transition-all" placeholder="Prix €" />
+        <button onClick={handleAdd} className="px-4 py-2 bg-slate-900 text-white rounded-xl font-bold uppercase text-[11px] tracking-wider hover:bg-blue-700 transition-all active:scale-95 whitespace-nowrap">Ajouter</button>
       </div>
     </div>
   );

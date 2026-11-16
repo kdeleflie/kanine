@@ -29,7 +29,8 @@ export interface Appointment {
   services: string[];
   notes: string;
   duration: number; // in minutes
-  status: 'pending' | 'completed' | 'cancelled' | 'invoiced';
+  status: 'pending' | 'completed' | 'cancelled' | 'invoiced' | 'blocked';
+  isBlocked?: boolean;
   photoBefore?: string; // Base64
   photoAfter?: string; // Base64
 }

@@ -226,186 +226,212 @@ const ClientList: React.FC<{ syncTrigger?: number, user?: any, initialClientId?:
     document.body.removeChild(link);
   };
 
+  const getAvatarPalette = (species: string) => {
+    const s = (species || '').toLowerCase();
+    if (s.includes('chat')) return 'from-violet-500 to-indigo-500';
+    if (s.includes('nac') || s.includes('lapin')) return 'from-amber-500 to-orange-500';
+    return 'from-blue-600 to-sky-500';
+  };
+
   return (
-    <div className="flex flex-col lg:flex-row gap-8 h-full min-h-0 max-w-[1600px] mx-auto">
+    <div className="flex flex-col lg:flex-row gap-4 h-full min-h-0 max-w-[1600px] mx-auto">
       {/* Sidebar - responsive width and height */}
-      <div className={`w-full lg:w-[350px] flex flex-col gap-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-100 overflow-hidden ${selectedClient && !isEditing ? 'hidden lg:flex' : 'flex'}`}>
-        <div className="flex gap-3">
+      <div className={`w-full lg:w-[275px] flex flex-col gap-3 bg-white p-3.5 rounded-2xl shadow-xs border border-blue-100/80 overflow-hidden ${selectedClient && !isEditing ? 'hidden lg:flex' : 'flex'}`}>
+        <div className="flex gap-2">
           <div className="relative flex-1">
-            <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-300" size={14} />
-            <input type="text" placeholder="RECHERCHER..." className="w-full pl-10 pr-4 py-3 bg-slate-50 rounded-xl text-[10px] font-bold outline-none border border-transparent focus:border-emerald-100 focus:bg-white placeholder:text-slate-300 uppercase tracking-widest transition-all" value={search} onChange={e => setSearch(e.target.value)} />
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 text-blue-400" size={14} />
+            <input type="text" placeholder="Rechercher un client..." className="w-full pl-8 pr-3 py-2 bg-slate-50 rounded-xl text-xs font-medium outline-none border border-slate-200/70 focus:border-blue-400 focus:bg-white placeholder:text-slate-400 transition-all" value={search} onChange={e => setSearch(e.target.value)} />
           </div>
-          <button onClick={() => { setSelectedClient(null); setIsEditing(true); setFormSpecies('Chien'); setHistory([]); setFormPhotoProfile(undefined); }} className="p-3 bg-slate-900 text-white rounded-xl shadow-lg shadow-slate-200 hover:bg-emerald-700 active:scale-95 transition-all"><Plus size={20} /></button>
+          <button onClick={() => { setSelectedClient(null); setIsEditing(true); setFormSpecies('Chien'); setHistory([]); setFormPhotoProfile(undefined); }} title="Nouveau client" className="p-2 bg-gradient-to-br from-blue-600 to-sky-500 text-white rounded-xl shadow-sm hover:from-blue-700 hover:to-sky-600 active:scale-95 transition-all shrink-0"><Plus size={18} /></button>
         </div>
-        <div className="flex-1 overflow-y-auto space-y-2.5 pr-1 custom-scrollbar">
-          {filteredClients.map(client => (
-            <button key={client.id} onClick={() => { setSelectedClient(client); setIsEditing(false); setFormSpecies(client.species); setFormPhotoProfile(client.photoProfile); loadHistory(client.id); }} className={`w-full text-left p-4 rounded-xl transition-all border ${selectedClient?.id === client.id ? 'bg-emerald-50 border-emerald-200 shadow-sm shadow-emerald-50/50' : 'bg-white border-slate-50 hover:bg-slate-50 text-slate-400'}`}>
-              <h4 className={`font-serif text-lg leading-tight ${selectedClient?.id === client.id ? 'text-emerald-900 italic' : 'text-slate-800'}`}>{client.name}</h4>
-              <p className="text-[10px] font-bold uppercase tracking-wider truncate opacity-60 flex items-center gap-2 mt-0.5">
-                <span className={selectedClient?.id === client.id ? 'text-emerald-600' : ''}>{client.ownerName}</span>
-                <span className="w-1 h-1 bg-slate-200 rounded-full"></span>
-                <span>{client.species}</span>
-              </p>
-            </button>
-          ))}
+        <div className="flex-1 overflow-y-auto space-y-1.5 pr-1 custom-scrollbar">
+          {filteredClients.map(client => {
+            const isSelected = selectedClient?.id === client.id;
+            const hasAlert = (client.particularities?.length || 0) > 0;
+            return (
+              <button key={client.id} onClick={() => { setSelectedClient(client); setIsEditing(false); setFormSpecies(client.species); setFormPhotoProfile(client.photoProfile); loadHistory(client.id); }} className={`w-full text-left px-2.5 py-2 rounded-xl transition-all border flex items-center gap-2.5 ${isSelected ? 'bg-gradient-to-r from-blue-50 to-sky-50/70 border-blue-300 shadow-xs' : 'bg-white border-slate-100 hover:bg-slate-50/80 hover:border-blue-100 text-slate-600'}`}>
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 text-white font-bold text-xs shadow-xs bg-gradient-to-br ${getAvatarPalette(client.species)} overflow-hidden`}>
+                  {client.photoProfile ? (
+                    <PhotoThumbnail imageRef={client.photoProfile} alt={client.name} />
+                  ) : (
+                    <span>{(client.name || '?').slice(0, 2).toUpperCase()}</span>
+                  )}
+                </div>
+                <div className="min-w-0 flex-1">
+                  <div className="flex items-center justify-between gap-1">
+                    <h4 className={`font-serif text-sm leading-tight truncate ${isSelected ? 'text-blue-950 font-semibold' : 'text-slate-800'}`}>{client.name}</h4>
+                    {hasAlert && <span className="w-2 h-2 rounded-full bg-amber-400 shrink-0" title="Vigilance santé/comportement" />}
+                  </div>
+                  <p className="text-[11px] font-medium truncate text-slate-500 flex items-center gap-1 mt-0.5">
+                    <span className={isSelected ? 'text-blue-700 font-semibold' : ''}>{client.ownerName}</span>
+                    <span className="text-slate-300">·</span>
+                    <span>{client.species}</span>
+                  </p>
+                </div>
+              </button>
+            );
+          })}
           {filteredClients.length === 0 && (
-            <div className="py-20 text-center">
-              <p className="text-xs text-slate-300 font-bold uppercase tracking-widest italic">Aucun résultat</p>
+            <div className="py-12 text-center">
+              <p className="text-xs text-slate-400 font-semibold">Aucun résultat</p>
             </div>
           )}
         </div>
       </div>
 
       {/* Main Content Area */}
-      <div className={`flex-1 bg-white rounded-2xl shadow-sm border border-slate-100 overflow-y-auto relative pb-20 ${!selectedClient && !isEditing ? 'hidden lg:block' : 'block'}`}>
+      <div className={`flex-1 bg-white rounded-2xl shadow-xs border border-blue-100/80 overflow-y-auto relative pb-8 ${!selectedClient && !isEditing ? 'hidden lg:block' : 'block'}`}>
         {isEditing ? (
-          <div className="p-8 md:p-12 max-w-4xl mx-auto">
-            <div className="flex justify-between items-center mb-12">
-              <h2 className="font-serif text-3xl text-slate-900 italic flex items-center gap-4">
-                <div className="w-1.5 h-10 bg-emerald-600 rounded-full"></div>
+          <div className="p-4 md:p-6 max-w-4xl mx-auto">
+            <div className="flex justify-between items-center mb-5 pb-3 border-b border-blue-100">
+              <h2 className="font-serif text-xl text-slate-900 italic flex items-center gap-3">
+                <div className="w-1.5 h-6 bg-gradient-to-b from-blue-600 to-sky-400 rounded-full"></div>
                 {selectedClient ? 'Modifier la fiche client' : 'Accueillir un nouveau client'}
               </h2>
-              <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-2.5 text-xs font-bold text-slate-400 hover:text-red-500 uppercase tracking-widest border border-slate-100 hover:border-red-100 rounded-xl transition-all">ANNULER</button>
+              <button type="button" onClick={() => setIsEditing(false)} className="px-3.5 py-1.5 text-xs font-bold text-slate-500 hover:text-rose-600 border border-slate-200 hover:border-rose-200 hover:bg-rose-50/50 rounded-xl transition-all">Annuler</button>
             </div>
             
-            <form onSubmit={handleSaveClient} className="space-y-16">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-              <div className="space-y-10">
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-3 italic">Identité du compagnon</h3>
-                <div className="flex items-center gap-8">
-                  <div className="relative w-28 h-28 bg-slate-50 rounded-3xl flex items-center justify-center overflow-hidden border border-slate-100 group shadow-inner">
+            <form onSubmit={handleSaveClient} className="space-y-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              <div className="space-y-3">
+                <h3 className="text-[11px] font-bold text-blue-700 border-b border-blue-100 pb-1.5">Identité du compagnon</h3>
+                <div className="flex items-center gap-4">
+                  <div className="relative w-16 h-16 bg-blue-50/60 rounded-2xl flex items-center justify-center overflow-hidden border border-blue-200 group shrink-0">
                     {formPhotoProfile ? (
                       <PhotoThumbnail imageRef={formPhotoProfile} alt="Profile" />
                     ) : (
-                      <Camera className="text-slate-300" size={30} />
+                      <Camera className="text-blue-300" size={22} />
                     )}
-                    <div className="absolute inset-0 bg-emerald-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
-                       <Plus size={24} className="text-white" />
+                    <div className="absolute inset-0 bg-blue-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-all">
+                       <Plus size={18} className="text-white" />
                     </div>
                     <input type="file" name="photoProfile" onChange={handleFormPhotoUpload} className="absolute inset-0 opacity-0 cursor-pointer" accept="image/*" />
                   </div>
-                  <div className="text-[10px] font-bold text-slate-400 uppercase tracking-wider leading-relaxed italic max-w-[150px]">
-                    Ajouter une photo de profil pour personnaliser la fiche.
+                  <div className="text-[11px] font-medium text-slate-500 leading-snug">
+                    Photo de profil du compagnon (cliquer pour modifier).
                   </div>
                 </div>
-                <div className="space-y-6">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Nom</label>
-                    <input name="name" defaultValue={selectedClient?.name} placeholder="Nom de l'animal..." required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none transition-all shadow-sm" />
+                <div className="space-y-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-500 px-0.5">Nom</label>
+                    <input name="name" defaultValue={selectedClient?.name} placeholder="Nom de l'animal..." required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none transition-all" />
                   </div>
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Espèce</label>
-                      <select name="species" value={formSpecies} onChange={e => setFormSpecies(e.target.value)} required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none shadow-sm cursor-pointer">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Espèce</label>
+                      <select name="species" value={formSpecies} onChange={e => setFormSpecies(e.target.value)} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none cursor-pointer">
                         {config.species.map(s => <option key={s} value={s}>{s}</option>)}
                       </select>
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Race</label>
-                      <select name="breed" defaultValue={selectedClient?.breed} required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none shadow-sm cursor-pointer">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Race</label>
+                      <select name="breed" defaultValue={selectedClient?.breed} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none cursor-pointer">
                         {(config.breeds[formSpecies] || ["Autre"]).map(b => <option key={b} value={b}>{b}</option>)}
                       </select>
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Sexe</label>
-                      <select name="sex" defaultValue={selectedClient?.sex || 'M'} required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none shadow-sm cursor-pointer">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Sexe</label>
+                      <select name="sex" defaultValue={selectedClient?.sex || 'M'} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none cursor-pointer">
                         <option value="M">Mâle</option>
                         <option value="F">Femelle</option>
                       </select>
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Poids (kg)</label>
-                      <input type="number" name="weight" defaultValue={selectedClient?.weight} placeholder="0.0" step="0.1" className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none shadow-sm" />
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Poids (kg)</label>
+                      <input type="number" name="weight" defaultValue={selectedClient?.weight} placeholder="0.0" step="0.1" className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none tabular-nums" />
                     </div>
                   </div>
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Type de poil</label>
-                      <select name="coatType" defaultValue={selectedClient?.coatType} required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none shadow-sm cursor-pointer">
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Type de poil</label>
+                      <select name="coatType" defaultValue={selectedClient?.coatType} required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none cursor-pointer">
                         {config.coatTypes.map(c => <option key={c} value={c}>{c}</option>)}
                       </select>
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Date de naissance</label>
-                      <input type="date" name="birthDate" defaultValue={selectedClient?.birthDate} className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none shadow-sm" />
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Date de naissance</label>
+                      <input type="date" name="birthDate" defaultValue={selectedClient?.birthDate} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none" />
                     </div>
                   </div>
                 </div>
               </div>
 
-              <div className="space-y-10">
-                <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-3 italic">Informations propriétaire</h3>
-                <div className="space-y-6">
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Nom complet</label>
-                    <input name="ownerName" defaultValue={selectedClient?.ownerName} placeholder="Nom & Prénom..." required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none transition-all shadow-sm" />
+              <div className="space-y-3">
+                <h3 className="text-[11px] font-bold text-violet-700 border-b border-violet-100 pb-1.5">Informations propriétaire</h3>
+                <div className="space-y-2.5">
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-500 px-0.5">Nom complet</label>
+                    <input name="ownerName" defaultValue={selectedClient?.ownerName} placeholder="Nom & Prénom..." required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none transition-all" />
                   </div>
-                  <div className="grid grid-cols-2 gap-5">
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Téléphone</label>
-                      <input name="phone" defaultValue={selectedClient?.phone} placeholder="Ex: 06..." required className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none transition-all shadow-sm" />
+                  <div className="grid grid-cols-2 gap-2.5">
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Téléphone</label>
+                      <input name="phone" defaultValue={selectedClient?.phone} placeholder="Ex: 06..." required className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none transition-all" />
                     </div>
-                    <div className="space-y-1.5">
-                      <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Email</label>
-                      <input type="email" name="email" defaultValue={selectedClient?.email} placeholder="contact@..." className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none transition-all shadow-sm" />
+                    <div className="space-y-1">
+                      <label className="text-[11px] font-semibold text-slate-500 px-0.5">Email</label>
+                      <input type="email" name="email" defaultValue={selectedClient?.email} placeholder="contact@..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none transition-all" />
                     </div>
                   </div>
-                  <div className="space-y-1.5">
-                    <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-1">Adresse postale</label>
-                    <input name="address" defaultValue={selectedClient?.address} placeholder="Domicile..." className="w-full px-5 py-4 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-2xl font-bold text-slate-800 outline-none transition-all shadow-sm" />
+                  <div className="space-y-1">
+                    <label className="text-[11px] font-semibold text-slate-500 px-0.5">Adresse postale</label>
+                    <input name="address" defaultValue={selectedClient?.address} placeholder="Domicile..." className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl font-semibold text-xs sm:text-sm text-slate-800 outline-none transition-all" />
                   </div>
-                  <label className="flex items-center gap-4 px-6 py-5 bg-slate-50 rounded-2xl cursor-pointer hover:bg-white border border-transparent hover:border-emerald-100 transition-all shadow-sm group">
-                    <input type="checkbox" name="isProfessional" defaultChecked={selectedClient?.isProfessional} className="w-5 h-5 rounded-lg border-slate-200 text-emerald-600 focus:ring-emerald-200" />
-                    <span className="text-xs font-bold text-slate-700 uppercase tracking-tight group-hover:text-emerald-700 transition-colors">Client professionnel</span>
+                  <label className="flex items-center gap-3 px-3.5 py-2.5 bg-blue-50/50 rounded-xl cursor-pointer hover:bg-blue-50 border border-blue-100 transition-all group">
+                    <input type="checkbox" name="isProfessional" defaultChecked={selectedClient?.isProfessional} className="w-4 h-4 rounded border-slate-300 text-blue-600 focus:ring-blue-200" />
+                    <span className="text-xs font-bold text-blue-900">Client professionnel</span>
                   </label>
                 </div>
               </div>
             </div>
 
-            <div className="space-y-8 mt-16">
-              <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest italic px-2">Santé & Comportement</h3>
-              <div className="flex flex-wrap gap-2.5">
+            <div className="space-y-2 pt-2">
+              <h3 className="text-[11px] font-bold text-amber-700">Santé & Comportement</h3>
+              <div className="flex flex-wrap gap-1.5">
                 {config.particularities.map(p => (
-                  <label key={p} className="flex items-center gap-3 px-5 py-3 bg-slate-50 rounded-xl cursor-pointer hover:bg-white border border-transparent hover:border-emerald-100 transition-all shadow-sm group">
-                    <input type="checkbox" name="particularities" value={p} defaultChecked={selectedClient?.particularities.includes(p)} className="w-4 h-4 rounded-lg border-slate-200 text-emerald-600 focus:ring-emerald-200" />
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-slate-600 group-hover:text-emerald-700 transition-colors">{p}</span>
+                  <label key={p} className="flex items-center gap-2 px-3 py-1.5 bg-amber-50/40 rounded-lg cursor-pointer hover:bg-amber-50 border border-amber-200/70 transition-all group">
+                    <input type="checkbox" name="particularities" value={p} defaultChecked={selectedClient?.particularities.includes(p)} className="w-3.5 h-3.5 rounded border-amber-300 text-amber-600 focus:ring-amber-200" />
+                    <span className="text-[11px] font-semibold text-slate-700 group-hover:text-amber-900 transition-colors">{p}</span>
                   </label>
                 ))}
               </div>
             </div>
 
-            <div className="space-y-3 mt-12">
-              <label className="text-[10px] font-bold text-slate-400 uppercase tracking-widest px-2 italic">Notes confidentielles</label>
-              <textarea name="notes" defaultValue={selectedClient?.notes} placeholder="Informations importantes..." rows={4} className="w-full px-6 py-5 bg-slate-50 border border-transparent focus:border-emerald-100 focus:bg-white rounded-3xl text-sm font-medium outline-none h-40 transition-all shadow-inner"></textarea>
+            <div className="space-y-1">
+              <label className="text-[11px] font-semibold text-slate-500 px-0.5">Notes confidentielles</label>
+              <textarea name="notes" defaultValue={selectedClient?.notes} placeholder="Informations importantes..." rows={2} className="w-full px-3 py-2 bg-slate-50 border border-slate-200 focus:border-blue-400 focus:bg-white rounded-xl text-xs sm:text-sm font-medium outline-none h-20 resize-none transition-all"></textarea>
             </div>
 
-            <button type="submit" className="w-full mt-12 py-5 bg-slate-900 text-white rounded-3xl font-bold text-sm uppercase tracking-widest shadow-2xl shadow-slate-200 hover:bg-emerald-700 transition-all active:scale-[0.98]">
+            <button type="submit" className="w-full py-2.5 bg-gradient-to-r from-blue-600 to-sky-500 text-white rounded-xl font-bold text-xs sm:text-sm shadow-md shadow-blue-200/60 hover:from-blue-700 hover:to-sky-600 transition-all active:scale-[0.99]">
               Finaliser l'enregistrement
             </button>
           </form>
           </div>
         ) : selectedClient ? (
-          <div className="p-8 md:p-12 space-y-16 animate-in fade-in slide-in-from-right-4 duration-500">
-            <div className="flex flex-col md:flex-row justify-between items-start gap-8 border-b border-slate-50 pb-12">
-               <div className="flex flex-col md:flex-row items-center gap-8 md:gap-12 w-full md:w-auto">
+          <div className="animate-in fade-in slide-in-from-right-4 duration-300">
+            {/* Soft Blue-Sky Header Banner */}
+            <div className="p-4 md:p-5 bg-gradient-to-r from-blue-50/90 via-sky-50/60 to-white border-b border-blue-100/80 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+               <div className="flex items-center gap-4 w-full sm:w-auto min-w-0">
                   <button 
                     onClick={() => setSelectedClient(null)} 
-                    className="md:hidden self-start flex items-center gap-2 text-emerald-600 font-bold uppercase text-xs transition-all hover:-translate-x-1"
+                    className="lg:hidden flex items-center gap-1 text-blue-600 font-bold text-xs shrink-0"
                   >
                     <ChevronLeft size={16} /> Retour
                   </button>
-                  <div className="relative group w-32 h-32 md:w-44 md:h-44 bg-slate-50 rounded-3xl flex items-center justify-center shadow-inner overflow-hidden border-4 border-white shrink-0 shadow-xl group">
+                  <div className={`relative group w-16 h-16 md:w-18 md:h-18 rounded-2xl flex items-center justify-center overflow-hidden border-2 border-white shrink-0 shadow-md bg-gradient-to-br ${getAvatarPalette(selectedClient.species)}`}>
                     {selectedClient.photoProfile ? (
                        <div onClick={() => setSelectedPhoto(selectedClient.photoProfile!)} className="w-full h-full cursor-pointer">
                          <PhotoThumbnail imageRef={selectedClient.photoProfile} alt="Profile" />
                        </div>
                     ) : (
-                       <User className="text-slate-200" size={60} />
+                       <span className="text-white font-serif text-xl italic font-semibold">
+                         {(selectedClient.name || '?').slice(0, 2).toUpperCase()}
+                       </span>
                     )}
-                    <label className="absolute inset-0 bg-emerald-900/40 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
-                       <Camera className="text-white" size={40} />
+                    <label className="absolute inset-0 bg-blue-950/45 opacity-0 group-hover:opacity-100 flex items-center justify-center cursor-pointer transition-opacity">
+                       <Camera className="text-white" size={18} />
                        <input type="file" onChange={handlePetPhotoUpload} className="hidden" accept="image/*" />
                     </label>
                     {selectedClient.photoProfile && (
@@ -415,170 +441,186 @@ const ClientList: React.FC<{ syncTrigger?: number, user?: any, initialClientId?:
                         await db.saveClient(updatedClient);
                         setSelectedClient(updatedClient);
                         loadClients();
-                      }} className="absolute top-3 right-3 p-2 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-red-600 shadow-xl">
-                        <Trash2 size={16} />
+                      }} className="absolute top-1 right-1 p-1 bg-rose-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity hover:bg-rose-600 shadow">
+                        <Trash2 size={10} />
                       </button>
                     )}
                   </div>
-                  <div className="text-center md:text-left">
-                    <h2 className="font-serif text-5xl md:text-7xl text-slate-900 italic mb-3">{selectedClient.name}</h2>
-                    <div className="flex items-center justify-center md:justify-start gap-6">
-                       <p className="text-xs font-bold text-emerald-600 uppercase tracking-widest">{selectedClient.breed} • {selectedClient.species}</p>
-                       <span className={`px-4 py-1.5 rounded-full text-[10px] font-bold uppercase tracking-widest shadow-sm ${selectedClient.sex === 'M' ? 'bg-blue-50 text-blue-600 border border-blue-100' : 'bg-rose-50 text-rose-600 border border-rose-100'}`}>
+                  <div className="min-w-0">
+                    <h2 className="font-serif text-2xl md:text-3xl text-slate-900 italic truncate">{selectedClient.name}</h2>
+                    <div className="flex flex-wrap items-center gap-2 mt-1 text-xs">
+                       <span className="font-bold text-blue-700">{selectedClient.breed} · {selectedClient.species}</span>
+                       <span className="text-slate-300">·</span>
+                       <span className={`font-semibold ${selectedClient.sex === 'M' ? 'text-sky-700' : 'text-rose-600'}`}>
                           {selectedClient.sex === 'M' ? 'Mâle' : 'Femelle'}
                        </span>
+                       {selectedClient.isProfessional && (
+                         <>
+                           <span className="text-slate-300">·</span>
+                           <span className="font-bold text-violet-700">Professionnel</span>
+                         </>
+                       )}
                     </div>
                   </div>
                </div>
-               <div className="flex gap-3 w-full md:w-auto">
+               <div className="flex gap-2 w-full sm:w-auto shrink-0">
                  <button onClick={async () => {
                    const duplicatedClient = { ...selectedClient, id: generateId(), name: `${selectedClient.name} (Copie)`, createdAt: new Date().toISOString() };
                    await db.saveClient(duplicatedClient);
                    loadClients();
                    setSelectedClient(duplicatedClient);
                    setIsEditing(true);
-                 }} className="flex-1 md:flex-none p-5 bg-slate-50 text-slate-400 rounded-2xl hover:text-emerald-600 hover:bg-white border border-slate-50 hover:border-emerald-100 shadow-sm transition-all" title="Dupliquer"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" className="mx-auto"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
-                 <button onClick={() => setIsEditing(true)} className="flex-1 md:flex-none p-5 bg-slate-50 text-slate-400 rounded-2xl hover:text-emerald-600 hover:bg-white border border-slate-50 hover:border-emerald-100 shadow-sm transition-all" title="Modifier"><Edit3 size={24} className="mx-auto"/></button>
-                 <button onClick={handleDeleteClient} className="flex-1 md:flex-none p-5 bg-slate-50 text-rose-300 rounded-2xl hover:text-rose-600 hover:bg-white border border-slate-50 hover:border-rose-100 shadow-sm transition-all" title="Supprimer"><Trash2 size={24} className="mx-auto"/></button>
+                 }} className="flex-1 sm:flex-none p-2.5 bg-white text-sky-600 rounded-xl hover:bg-sky-50 border border-sky-200/80 transition-all shadow-xs" title="Dupliquer"><svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round" className="mx-auto"><rect width="14" height="14" x="8" y="8" rx="2" ry="2"/><path d="M4 16c-1.1 0-2-.9-2-2V4c0-1.1.9-2 2-2h10c1.1 0 2 .9 2 2"/></svg></button>
+                 <button onClick={() => setIsEditing(true)} className="flex-1 sm:flex-none p-2.5 bg-white text-blue-600 rounded-xl hover:bg-blue-50 border border-blue-200/80 transition-all shadow-xs" title="Modifier"><Edit3 size={16} className="mx-auto"/></button>
+                 <button onClick={handleDeleteClient} className="flex-1 sm:flex-none p-2.5 bg-white text-rose-500 rounded-xl hover:bg-rose-50 border border-rose-200/80 transition-all shadow-xs" title="Supprimer"><Trash2 size={16} className="mx-auto"/></button>
                </div>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-16">
-               <div className="space-y-16">
-                  <section className="space-y-8">
-                    <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-3 italic">Informations de contact</h3>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
-                      <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:bg-white hover:border-emerald-100 transition-all shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 opacity-60">Détenteur</p>
-                        <p className="font-serif text-xl text-slate-800 italic">{selectedClient.ownerName}</p>
+            <div className="p-4 md:p-5 grid grid-cols-1 lg:grid-cols-2 gap-5">
+               <div className="space-y-5">
+                  <section className="space-y-2.5">
+                    <h3 className="text-[11px] font-bold text-blue-700 border-b border-blue-100 pb-1.5">Informations de contact</h3>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                      <div className="p-3 bg-blue-50/40 rounded-xl border border-blue-100/80">
+                        <p className="text-[10px] font-semibold text-slate-400 mb-0.5">Détenteur</p>
+                        <p className="font-serif text-base text-slate-900 italic truncate">{selectedClient.ownerName}</p>
                       </div>
-                      <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 group hover:bg-white hover:border-emerald-100 transition-all shadow-sm">
-                        <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 opacity-60">Téléphone</p>
-                        <p className="font-bold text-emerald-600 text-lg tabular-nums">{selectedClient.phone}</p>
+                      <div className="p-3 bg-sky-50/40 rounded-xl border border-sky-100/80">
+                        <p className="text-[10px] font-semibold text-slate-400 mb-0.5">Téléphone</p>
+                        <p className="font-bold text-blue-700 text-sm tabular-nums">{selectedClient.phone}</p>
                       </div>
                       {selectedClient.email && (
-                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 col-span-2 group hover:bg-white hover:border-emerald-100 transition-all shadow-sm">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 opacity-60">Email</p>
-                          <p className="font-bold text-slate-800 text-sm whitespace-nowrap overflow-hidden text-ellipsis lowercase">{selectedClient.email}</p>
+                        <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100 sm:col-span-2">
+                          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">Email</p>
+                          <p className="font-semibold text-slate-800 text-xs truncate lowercase">{selectedClient.email}</p>
                         </div>
                       )}
                       {selectedClient.address && (
-                        <div className="p-6 bg-slate-50 rounded-3xl border border-slate-100 col-span-2 group hover:bg-white hover:border-emerald-100 transition-all shadow-sm">
-                          <p className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mb-3 opacity-60">Adresse de résidence</p>
-                          <p className="font-medium text-slate-600 text-xs leading-relaxed italic uppercase">{selectedClient.address}</p>
+                        <div className="p-3 bg-slate-50/80 rounded-xl border border-slate-100 sm:col-span-2">
+                          <p className="text-[10px] font-semibold text-slate-400 mb-0.5">Adresse de résidence</p>
+                          <p className="font-medium text-slate-600 text-xs leading-snug">{selectedClient.address}</p>
                         </div>
                       )}
                     </div>
                   </section>
 
-                  <section className="space-y-8">
-                    <h3 className="text-[11px] font-bold text-amber-600 uppercase tracking-widest border-b border-amber-100 pb-3 italic">Particularités & Santé</h3>
-                    <div className="flex flex-wrap gap-2.5">
+                  <section className="space-y-2.5">
+                    <h3 className="text-[11px] font-bold text-amber-700 border-b border-amber-100 pb-1.5">Particularités & Santé</h3>
+                    <div className="flex flex-wrap gap-1.5">
                         {selectedClient.particularities.map(p => (
-                          <span key={p} className="px-4 py-2 bg-amber-50 text-amber-700 text-[10px] font-bold rounded-full uppercase tracking-wider border border-amber-200 shadow-sm">{p}</span>
+                          <span key={p} className="px-2.5 py-1 bg-amber-50 text-amber-800 text-[11px] font-bold rounded-lg border border-amber-200">{p}</span>
                         ))}
-                        {selectedClient.particularities.length === 0 && <p className="text-xs text-slate-300 font-bold uppercase italic tracking-widest px-2">Aucune particularité enregistrée</p>}
+                        {selectedClient.particularities.length === 0 && <p className="text-xs text-slate-400 italic">Aucune particularité enregistrée</p>}
                     </div>
                     {selectedClient.notes && (
-                      <div className="p-8 bg-amber-50/40 rounded-3xl border border-amber-200/50 shadow-inner">
-                         <p className="text-sm font-medium text-amber-900 italic leading-relaxed text-center">"{selectedClient.notes}"</p>
+                      <div className="p-3 bg-amber-50/70 rounded-xl border border-amber-200/80">
+                         <p className="text-xs font-medium text-amber-950 italic leading-relaxed">"{selectedClient.notes}"</p>
                       </div>
                     )}
                   </section>
                   
-                  <section className="space-y-8">
-                    <h3 className="text-[11px] font-bold text-slate-400 uppercase tracking-widest border-b border-slate-50 pb-3 italic">Caractéristiques physiques</h3>
-                    <div className="grid grid-cols-2 gap-5">
-                       <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-sm">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase block mb-2">Pelage</span>
-                          <span className="text-sm font-bold text-slate-800 uppercase tracking-wide">{selectedClient.coatType}</span>
+                  <section className="space-y-2.5">
+                    <h3 className="text-[11px] font-bold text-violet-700 border-b border-violet-100 pb-1.5">Caractéristiques physiques</h3>
+                    <div className="grid grid-cols-2 gap-2.5">
+                       <div className="bg-violet-50/40 p-3 rounded-xl border border-violet-100/80">
+                          <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Pelage</span>
+                          <span className="text-xs font-bold text-slate-800">{selectedClient.coatType}</span>
                        </div>
-                       <div className="bg-slate-50 p-6 rounded-3xl border border-slate-100 shadow-sm">
-                          <span className="text-[10px] font-bold text-slate-400 uppercase block mb-2">Poids actuel</span>
-                          <span className="text-sm font-bold text-slate-800 tabular-nums">{selectedClient.weight} kg</span>
+                       <div className="bg-violet-50/40 p-3 rounded-xl border border-violet-100/80">
+                          <span className="text-[10px] font-semibold text-slate-400 block mb-0.5">Poids actuel</span>
+                          <span className="text-xs font-bold text-slate-800 tabular-nums">{selectedClient.weight} kg</span>
                        </div>
                     </div>
                   </section>
                </div>
 
-               <div className="space-y-12">
-                  <h3 className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest border-b border-emerald-50 pb-3 italic flex items-center gap-3"><ImageIcon size={18}/> Album de soins</h3>
-                  <div className="space-y-8">
-                    {history.length > 0 ? history.map(item => (
-                      <div key={item.id} className="p-6 bg-slate-50 rounded-3xl space-y-5 border border-slate-100 hover:bg-white hover:border-emerald-100 transition-all group shadow-sm">
-                        <div className="flex justify-between items-center">
-                          <p className="font-serif text-lg text-slate-800 italic">{new Date(item.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}</p>
-                          <span className="px-4 py-1.5 bg-white border border-emerald-50 rounded-full text-[10px] font-bold uppercase text-emerald-600 tracking-wider group-hover:bg-emerald-600 group-hover:text-white transition-all shadow-sm">{item.service}</span>
+               <div className="space-y-5">
+                  <div className="space-y-2.5">
+                    <h3 className="text-[11px] font-bold text-sky-700 border-b border-sky-100 pb-1.5 flex items-center gap-2"><ImageIcon size={14} className="text-sky-600"/> Album de soins</h3>
+                    <div className="space-y-2.5">
+                      {history.length > 0 ? history.map(item => (
+                        <div key={item.id} className="p-3 bg-sky-50/35 rounded-xl space-y-2 border border-sky-100/80 hover:bg-white hover:border-blue-200 transition-all group">
+                          <div className="flex justify-between items-center gap-2">
+                            <p className="font-serif text-sm text-slate-800 italic">{new Date(item.date).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}</p>
+                            <span className="text-[11px] font-semibold text-blue-700 truncate max-w-[60%]">
+                              {item.services?.length ? item.services.join(', ') : (item as any).service || 'Soin'}
+                            </span>
+                          </div>
+                          <div className="grid grid-cols-2 gap-2">
+                             <div className="relative h-24 bg-white rounded-lg overflow-hidden border border-slate-200/70 flex items-center justify-center transition-all cursor-pointer group/photo" onClick={() => item.photoBefore && setSelectedPhoto(item.photoBefore)}>
+                                {item.photoBefore ? <PhotoThumbnail imageRef={item.photoBefore} alt="Avant" /> : <div className="text-[10px] text-slate-300 font-semibold italic">Avant</div>}
+                                <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-slate-900/65 text-white text-[9px] font-bold rounded uppercase opacity-0 group-hover/photo:opacity-100 transition-opacity">Avant</div>
+                             </div>
+                             <div className="relative h-24 bg-white rounded-lg overflow-hidden border border-blue-200/70 flex items-center justify-center transition-all cursor-pointer group/photo" onClick={() => item.photoAfter && setSelectedPhoto(item.photoAfter)}>
+                                {item.photoAfter ? <PhotoThumbnail imageRef={item.photoAfter} alt="Après" /> : <div className="text-[10px] text-slate-300 font-semibold italic">Après</div>}
+                                <div className="absolute top-1.5 left-1.5 px-1.5 py-0.5 bg-blue-600 text-white text-[9px] font-bold rounded uppercase opacity-0 group-hover/photo:opacity-100 transition-opacity">Après</div>
+                             </div>
+                          </div>
                         </div>
-                        <div className="grid grid-cols-2 gap-4">
-                           <div className="relative aspect-square bg-white rounded-2xl overflow-hidden border border-slate-100 flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer shadow-md group/photo" onClick={() => item.photoBefore && setSelectedPhoto(item.photoBefore)}>
-                              {item.photoBefore ? <PhotoThumbnail imageRef={item.photoBefore} alt="Avant" /> : <div className="text-[10px] text-slate-300 uppercase font-bold italic tracking-widest">Avant</div>}
-                              <div className="absolute top-3 left-3 px-2 py-0.5 bg-black/40 backdrop-blur-sm text-white text-[8px] font-black rounded uppercase tracking-tighter opacity-0 group-hover/photo:opacity-100 transition-opacity">AVANT</div>
-                           </div>
-                           <div className="relative aspect-square bg-white rounded-2xl overflow-hidden border border-slate-100 flex items-center justify-center grayscale hover:grayscale-0 transition-all cursor-pointer shadow-md group/photo" onClick={() => item.photoAfter && setSelectedPhoto(item.photoAfter)}>
-                              {item.photoAfter ? <PhotoThumbnail imageRef={item.photoAfter} alt="Après" /> : <div className="text-[10px] text-slate-300 uppercase font-bold italic tracking-widest">Après</div>}
-                              <div className="absolute top-3 left-3 px-2 py-0.5 bg-emerald-600 text-white text-[8px] font-black rounded uppercase tracking-tighter opacity-0 group-hover/photo:opacity-100 transition-opacity">APRÈS</div>
-                           </div>
+                      )) : (
+                        <div className="py-8 text-center border border-dashed border-slate-200 rounded-xl bg-slate-50/40">
+                          <p className="text-xs text-slate-400 italic">Aucun historique disponible</p>
                         </div>
-                      </div>
-                    )) : (
-                      <div className="py-20 text-center border-2 border-dashed border-slate-50 rounded-3xl">
-                        <p className="text-xs text-slate-300 font-bold uppercase tracking-widest italic">Aucun historique disponible</p>
-                      </div>
-                    )}
+                      )}
+                    </div>
                   </div>
 
-                  <h3 className="text-[11px] font-bold text-emerald-600 uppercase tracking-widest border-b border-emerald-50 pb-3 italic flex items-center gap-3 mt-16">
-                    <Euro size={18}/> Historique factures
-                  </h3>
-                  <div className="space-y-4">
-                    {[...invoices.filter(i => i.clientId === selectedClient.id), ...productInvoices.filter(i => i.clientId === selectedClient.id)]
-                       .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-                       .slice(0, 5)
-                       .map(inv => {
-                         const isProductInvoice = 'items' in inv && !('appointmentId' in inv);
-                         return (
-                           <div key={inv.id} className="p-5 bg-slate-50 rounded-2xl border border-slate-50 flex justify-between items-center cursor-pointer hover:bg-white hover:border-emerald-100 transition-all group shadow-sm" onClick={() => isProductInvoice ? onPrintProductInvoice(inv as ProductInvoice) : onPrintInvoice(inv as Invoice)}>
-                             <div className="flex items-center gap-5">
-                               <div className="w-12 h-12 bg-white rounded-xl border border-slate-100 flex items-center justify-center text-slate-400 group-hover:bg-emerald-50 group-hover:text-emerald-600 transition-all shadow-inner">
-                                 {isProductInvoice ? <Download size={20} /> : <Euro size={20} />}
+                  <div className="space-y-2.5">
+                    <h3 className="text-[11px] font-bold text-blue-700 border-b border-blue-100 pb-1.5 flex items-center gap-2">
+                      <Euro size={14} className="text-blue-600"/> Historique factures
+                    </h3>
+                    <div className="space-y-2">
+                      {[...invoices.filter(i => i.clientId === selectedClient.id), ...productInvoices.filter(i => i.clientId === selectedClient.id)]
+                         .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
+                         .slice(0, 5)
+                         .map(inv => {
+                           const isProductInvoice = 'items' in inv && !('appointmentId' in inv);
+                           return (
+                             <div key={inv.id} className="p-2.5 bg-slate-50/80 rounded-xl border border-slate-100 flex justify-between items-center cursor-pointer hover:bg-blue-50/40 hover:border-blue-200 transition-all group" onClick={() => isProductInvoice ? onPrintProductInvoice(inv as ProductInvoice) : onPrintInvoice(inv as Invoice)}>
+                               <div className="flex items-center gap-3 min-w-0">
+                                 <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 transition-all ${isProductInvoice ? 'bg-rose-50 text-rose-600' : 'bg-blue-50 text-blue-600'}`}>
+                                   {isProductInvoice ? <Download size={14} /> : <Euro size={14} />}
+                                 </div>
+                                 <div className="min-w-0">
+                                   <p className="font-bold text-slate-800 text-xs tracking-tight truncate">{inv.number}</p>
+                                   <p className="text-[11px] text-slate-500">{new Date(inv.date).toLocaleDateString('fr-FR')} · {isProductInvoice ? 'Boutique' : 'Prestation'}</p>
+                                 </div>
                                </div>
-                               <div>
-                                 <p className="font-bold text-slate-800 text-xs tracking-tight">{inv.number}</p>
-                                 <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">{isProductInvoice ? 'Vente Boutique' : 'Prestation'}</p>
+                               <div className="flex items-center gap-2 shrink-0">
+                                  <p className="font-bold text-blue-700 text-sm tabular-nums">{inv.amount.toFixed(2)} €</p>
+                                  <ChevronRight size={14} className="text-slate-300 group-hover:text-blue-600 transition-all" />
                                </div>
                              </div>
-                             <div className="flex items-center gap-5">
-                                <p className="font-bold text-emerald-600 text-lg tabular-nums">{inv.amount.toFixed(2)}€</p>
-                                <ChevronRight size={18} className="text-slate-300 group-hover:text-emerald-600 group-hover:translate-x-1 transition-all" />
-                             </div>
-                           </div>
-                         );
-                       })}
-                    {([...invoices.filter(i => i.clientId === selectedClient.id), ...productInvoices.filter(i => i.clientId === selectedClient.id)]).length === 0 && (
-                      <p className="text-xs text-slate-300 font-bold uppercase italic tracking-widest text-center py-10 border border-slate-50 rounded-2xl">Aucune facture émise</p>
-                    )}
+                           );
+                         })}
+                      {([...invoices.filter(i => i.clientId === selectedClient.id), ...productInvoices.filter(i => i.clientId === selectedClient.id)]).length === 0 && (
+                        <p className="text-xs text-slate-400 italic text-center py-6 border border-dashed border-slate-200 rounded-xl bg-slate-50/40">Aucune facture émise</p>
+                      )}
+                    </div>
                   </div>
                </div>
             </div>
           </div>
         ) : (
-          <div className="h-full flex flex-col items-center justify-center text-slate-100 py-60">
-            <User size={100} className="mb-8 opacity-10" />
-            <p className="font-serif text-2xl italic text-slate-300 opacity-40">Choisissez un compagnon dans la liste</p>
+          <div className="h-full flex flex-col items-center justify-center py-20 text-center px-6">
+            <div className="w-14 h-14 rounded-2xl bg-blue-50 text-blue-500 flex items-center justify-center mb-3 border border-blue-100">
+              <User size={28} />
+            </div>
+            <p className="font-serif text-lg italic text-slate-600">Choisissez un compagnon dans la liste</p>
+            <p className="text-xs text-slate-400 mt-1">Consultez ses coordonnées, son historique de soins et ses photos</p>
           </div>
         )}
       </div>
 
       {selectedPhoto && (
-        <div className="fixed inset-0 z-[999] bg-slate-900/95 flex flex-col items-center justify-center p-4 backdrop-blur-md">
-           <button onClick={() => setSelectedPhoto(null)} className="absolute top-10 right-10 p-5 bg-white/10 text-white rounded-full hover:bg-white/20 transition-all shadow-2xl"><X size={32}/></button>
-           <div className="max-w-5xl max-h-[80vh] flex items-center justify-center">
-              <img src={selectedPhoto} className="max-w-full max-h-full object-contain rounded-3xl shadow-[0_0_100px_rgba(0,0,0,0.5)]" />
+        <div className="fixed inset-0 z-[999] bg-slate-950/90 flex flex-col items-center justify-center p-4 backdrop-blur-md">
+           <button onClick={() => setSelectedPhoto(null)} className="absolute top-6 right-6 p-3 bg-white/10 text-white rounded-full hover:bg-white/20 transition-all shadow-lg"><X size={22}/></button>
+           <div className="max-w-4xl max-h-[78vh] flex items-center justify-center">
+              <img src={selectedPhoto} alt="Agrandissement" className="max-w-full max-h-full object-contain rounded-2xl shadow-2xl" />
            </div>
-           <div className="mt-10 flex gap-4">
-              <button onClick={() => downloadImage(selectedPhoto, selectedClient?.name || 'animal')} className="px-12 py-5 bg-indigo-600 text-white rounded-[2rem] font-black flex items-center gap-4 shadow-2xl transition-transform hover:scale-105 active:scale-95 text-lg uppercase tracking-widest">
-                 <Download size={28} /> Télécharger
+           <div className="mt-6 flex gap-3">
+              <button onClick={() => downloadImage(selectedPhoto, selectedClient?.name || 'animal')} className="px-6 py-3 bg-blue-600 hover:bg-blue-700 text-white rounded-xl font-bold flex items-center gap-2.5 shadow-xl transition-all active:scale-95 text-sm">
+                 <Download size={18} /> Télécharger
               </button>
            </div>
         </div>

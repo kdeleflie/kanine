@@ -587,39 +587,72 @@ const App: React.FC = () => {
               onChange={e => setHiddenFilterYear(Number(e.target.value))}
               className="bg-slate-800 border border-slate-700 text-white rounded-lg p-1.5 text-xs outline-none focus:ring-1 focus:ring-blue-500"
             >
-              {Array.from(new Set([new Date().getFullYear(), ...hiddenRecords.map(r => new Date(r.date).getFullYear())])).sort((a,b)=>b-a).map(y => (
-                <option key={y} value={y}>{y}</option>
-              ))}
+              {Array.from(
+                new Set([
+                  new Date().getFullYear(),
+                  ...hiddenRecords.map(r => new Date(r.date).getFullYear()),
+                  ...groomingInvoices.map(inv => parseInt((inv.date || '').substring(0, 4), 10)),
+                  ...productInvoices.map(inv => parseInt((inv.date || '').substring(0, 4), 10))
+                ])
+              )
+                .filter(y => !isNaN(y))
+                .sort((a, b) => b - a)
+                .map(y => (
+                  <option key={y} value={y}>{y}</option>
+                ))}
             </select>
           </div>
 
-          <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
-            <table className="w-full text-left text-xs">
-              <thead className="bg-slate-700/50 text-slate-300">
-                <tr>
-                  <th className="p-2.5">Date</th>
-                  <th className="p-2.5">Client</th>
-                  <th className="p-2.5">Animal</th>
-                  <th className="p-2.5">Commentaire</th>
-                  <th className="p-2.5 text-right">Montant</th>
-                  <th className="p-2.5"></th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-slate-700/50">
-                {(() => {
-                  const filteredHiddenRecords = hiddenRecords.filter(r => {
-                    const d = new Date(r.date);
-                    if (d.getFullYear() !== hiddenFilterYear) return false;
-                    if (hiddenFilterPeriodType === 'month') return d.getMonth() === hiddenFilterPeriodValue;
-                    if (hiddenFilterPeriodType === 'quarter') return Math.floor(d.getMonth() / 3) === hiddenFilterPeriodValue;
-                    return true;
-                  }).sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+          {(() => {
+            const matchesPeriod = (dateStr?: string) => {
+              if (!dateStr) return false;
+              let y: number;
+              let m: number;
+              if (/^\d{4}-\d{2}/.test(dateStr)) {
+                y = parseInt(dateStr.substring(0, 4), 10);
+                m = parseInt(dateStr.substring(5, 7), 10) - 1;
+              } else {
+                const d = new Date(dateStr);
+                if (isNaN(d.getTime())) return false;
+                y = d.getFullYear();
+                m = d.getMonth();
+              }
+              if (y !== hiddenFilterYear) return false;
+              if (hiddenFilterPeriodType === 'month') return m === hiddenFilterPeriodValue;
+              if (hiddenFilterPeriodType === 'quarter') return Math.floor(m / 3) === hiddenFilterPeriodValue;
+              return true;
+            };
 
-                  const totalAmount = filteredHiddenRecords.reduce((sum, r) => sum + r.amount, 0);
-                  const clients = db.getClients();
+            const filteredHiddenRecords = hiddenRecords
+              .filter(r => matchesPeriod(r.date))
+              .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
 
-                  return (
-                    <>
+            const totalAmount = filteredHiddenRecords.reduce((sum, r) => sum + (Number(r.amount) || 0), 0);
+            const groomingCA = groomingInvoices
+              .filter(inv => matchesPeriod(inv.date))
+              .reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0);
+            const productCA = productInvoices
+              .filter(inv => matchesPeriod(inv.date))
+              .reduce((sum, inv) => sum + (Number(inv.amount) || 0), 0);
+            const totalCA = groomingCA + productCA;
+            const combinedTotal = totalAmount + totalCA;
+            const clients = db.getClients();
+
+            return (
+              <>
+                <div className="bg-slate-800 rounded-lg overflow-hidden border border-slate-700">
+                  <table className="w-full text-left text-xs">
+                    <thead className="bg-slate-700/50 text-slate-300">
+                      <tr>
+                        <th className="p-2.5">Date</th>
+                        <th className="p-2.5">Client</th>
+                        <th className="p-2.5">Animal</th>
+                        <th className="p-2.5">Commentaire</th>
+                        <th className="p-2.5 text-right">Montant</th>
+                        <th className="p-2.5"></th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-700/50">
                       {filteredHiddenRecords.map(record => {
                         const client = clients.find(c => c.id === record.clientId);
                         return (
@@ -628,7 +661,7 @@ const App: React.FC = () => {
                             <td className="p-2.5 font-medium">{client?.ownerName || 'Inconnu'}</td>
                             <td className="p-2.5 text-slate-400">{client?.name || 'Inconnu'}</td>
                             <td className="p-2.5 text-slate-400">{record.comment}</td>
-                            <td className="p-2.5 text-right font-bold text-sky-400 tabular-nums">{record.amount.toFixed(2)} €</td>
+                            <td className="p-2.5 text-right font-bold text-sky-400 tabular-nums">{(Number(record.amount) || 0).toFixed(2)} €</td>
                             <td className="p-2.5 text-right">
                               <button 
                                 onClick={(e) => {
@@ -657,19 +690,32 @@ const App: React.FC = () => {
                           <td colSpan={6} className="p-3 text-center text-slate-500 italic">Aucune donnée</td>
                         </tr>
                       )}
-                      {filteredHiddenRecords.length > 0 && (
-                        <tr className="bg-slate-700/30">
-                          <td colSpan={4} className="p-2.5 text-right font-bold text-slate-300 uppercase tracking-wider text-[11px]">Total de la période :</td>
-                          <td className="p-2.5 text-right font-black text-sky-400 tabular-nums">{totalAmount.toFixed(2)} €</td>
-                          <td className="p-2.5"></td>
-                        </tr>
-                      )}
-                    </>
-                  );
-                })()}
-              </tbody>
-            </table>
-          </div>
+                    </tbody>
+                  </table>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5 mt-3">
+                  <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-semibold text-slate-300">Total période</span>
+                    <span className="text-sm font-black text-sky-400 tabular-nums">{totalAmount.toFixed(2)} €</span>
+                  </div>
+                  <div className="bg-slate-800/80 border border-slate-700 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+                    <div>
+                      <span className="text-[11px] font-semibold text-slate-300 block leading-tight">Chiffre d'affaires (période)</span>
+                      <span className="text-[10px] text-slate-400 tabular-nums">
+                        Serv. {groomingCA.toFixed(2)} € · Bout. {productCA.toFixed(2)} €
+                      </span>
+                    </div>
+                    <span className="text-sm font-black text-amber-300 tabular-nums shrink-0">{totalCA.toFixed(2)} €</span>
+                  </div>
+                  <div className="bg-blue-600/20 border border-blue-500/40 rounded-lg px-3 py-2 flex items-center justify-between gap-2">
+                    <span className="text-[11px] font-bold text-blue-200">Total cumulé (Période + CA)</span>
+                    <span className="text-sm font-black text-white tabular-nums shrink-0">{combinedTotal.toFixed(2)} €</span>
+                  </div>
+                </div>
+              </>
+            );
+          })()}
         </div>
       )}
       <div className="flex flex-col md:flex-row items-center justify-between bg-white p-3.5 rounded-2xl border border-blue-100/80 shadow-xs gap-3">
